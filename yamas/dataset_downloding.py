@@ -7,7 +7,7 @@ def get_acc_list(bio_project_name, verbose_print):
     os.system(get_run_info_command)
     verbose_print(f"downloaded the run info at {bio_project_name}_run_info.csv")
 
-    get_acc_info_command = f"cat {bio_project_name}_run_info.csv | cut -f 1 -d ',' | grep ERR > {bio_project_name}_acc_info.txt"
+    get_acc_info_command = f"cat {bio_project_name}_run_info.csv | cut -f 1 -d ',' | grep -e ERR -e SRR > {bio_project_name}_acc_info.txt"
     os.system(get_acc_info_command)
     verbose_print(f"downloaded the accession list at {bio_project_name}_acc_info.txt")
 
