@@ -7,7 +7,7 @@ YaMaS is a package designed to easily download DNA datasets from the NCBI SRA we
 To install YaMaS, you can use pip:
 
 ```
-pip install YaMaS
+pip install yamas
 ```
 
 ## Dependencies
