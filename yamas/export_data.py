@@ -30,26 +30,6 @@ def classifier_exists(classifier_path: str):
                                 f"Download it from: {download_classifier_url()}")
 
 
-def output_files_check(otu_output_file: str, taxonomy_output_file: str):
-    dir_ = os.path.join(*os.path.split(otu_output_file)[:-1])
-    if not (os.path.exists(dir_) and os.path.isdir(dir_)):
-        raise NotADirectoryError(f"The directory of the file given in otu_output_file is not found. "
-                                 f"Create directory {dir_} or change to an existing one.")
-
-    if otu_output_file.split(".")[-1] not in {"tsv", 'txt'}:
-        raise ValueError(f"otu_output_file must be a tsv/txt file. "
-                         f"Instead got a {otu_output_file.split('.')[-1]} file.")
-
-    dir_ = os.path.join(*os.path.split(taxonomy_output_file)[:-1])
-    if not (os.path.exists(dir_) and os.path.isdir(dir_)):
-        raise NotADirectoryError(f"The directory of the file given in taxonomy_output_file is not found. "
-                                 f"Create directory {dir_} or change to an existing one.")
-
-    if taxonomy_output_file.split(".")[-1] != "tsv":
-        raise ValueError(f"taxonomy_output_file must be a tsv file. "
-                         f"Instead got a {taxonomy_output_file.split('.')[-1]} file.")
-
-
 def qiime_dada2(reads_data: ReadsData, input_path: str,
                 left: int | tuple[int, int], right: int | tuple[int, int], threads: int = 12):
     paired = reads_data.fwd and reads_data.rev
@@ -120,7 +100,8 @@ def clean_taxonomy2(reads_data: ReadsData):
     run_cmd(command)
 
 
-def export_otu(reads_data: ReadsData, output_file: str):
+def export_otu(reads_data: ReadsData):
+    output_file = os.path.join(reads_data.dir_path, "exports", "otu.tsv")
     # export
     command = [
         "qiime", "tools", "export",
@@ -139,17 +120,14 @@ def export_otu(reads_data: ReadsData, output_file: str):
     run_cmd(command)
 
 
-def export_taxonomy(reads_data: ReadsData, output_file: str):
+def export_taxonomy(reads_data: ReadsData, classifier_file_path):
+    output_file = os.path.join(reads_data.dir_path, "exports", "tax.tsv")
     # export
     command = [
         "qiime", "tools", "export",
         "--input-path", os.path.join(reads_data.dir_path, "qza", "gg-13-8-99-nb-classified.qza"),
-        "--output-path", os.path.join(reads_data.dir_path, "exports")
+        "--output-path", output_file
     ]
-    run_cmd(command)
-
-    # copy taxonomy.tsv to output_file
-    command = ["cp", os.path.join(reads_data.dir_path, "exports", "taxonomy.tsv"), output_file]
     run_cmd(command)
 
 
@@ -157,7 +135,6 @@ def export_phylogeny(reads_data: ReadsData):
     # sequence alignment using mafft
     input_file_path = os.path.join('qza', 'rep-seqs-dn-99.qza')
     output_file_path = os.path.join('qza', 'aligned-rep-seqs.qza')
-    os.system(f"touch {output_file_path}")
     command = ["qiime", "alignment", "mafft", "--i-sequences", input_file_path, "--o-alignment", output_file_path]
     run_cmd(command)
 
@@ -165,7 +142,8 @@ def export_phylogeny(reads_data: ReadsData):
     input_file_path = output_file_path
     output_file_path = os.path.join('qza', 'fasttree-tree.qza"')
 
-    command = ["qiime", "phylogeny", "fasttree", "--i-alignment", input_file_path, "--o-tree", output_file_path, "--verbose"]
+    command = ["qiime", "phylogeny", "fasttree", "--i-alignment", input_file_path, "--o-tree", output_file_path,
+               "--verbose"]
     run_cmd(command)
 
     # Root the phylogeny:
@@ -175,7 +153,7 @@ def export_phylogeny(reads_data: ReadsData):
     command = ["qiime", "phylogeny", "midpoint-root", "--i-tree", input_file_path, "--o-rooted-tree", output_file_path]
     run_cmd(command)
 
-    #export
+    # export
     input_file_path = output_file_path
     output_file_path = "exports"
 
@@ -183,18 +161,15 @@ def export_phylogeny(reads_data: ReadsData):
     run_cmd(command)
 
 
-def export(*, output_dir: str, trim: int | tuple[int, int], trunc: int | tuple[int, int], classifier_file: str,
-           otu_output_file: str, taxonomy_output_file: str, threads: int = 12):
+def export(output_dir: str, trim, trunc, classifier_file_path: str, threads: int = 12):
     print("\n")
     print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
     print("Starting OTU & TAXONOMY files extraction")
 
     check_conda_qiime2()
-
     reads_data: ReadsData = pickle.load(open(os.path.join(output_dir, "reads_data.pkl"), "rb"))
     trim_trunc_check(reads_data, trim, trunc)
-    output_files_check(otu_output_file, taxonomy_output_file)
-    classifier_exists(classifier_file)
+    classifier_exists(classifier_file_path)
 
     paired = reads_data.rev and reads_data.fwd
     output_path = os.path.join(reads_data.dir_path, "qza", f"demux-{'paired' if paired else 'single'}-end.qza")
@@ -211,7 +186,7 @@ def export(*, output_dir: str, trim: int | tuple[int, int], trunc: int | tuple[i
 
     print("\n")
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start assigning taxonomy (3/7)")
-    assign_taxonomy(reads_data, classifier_file)
+    assign_taxonomy(reads_data, classifier_file_path)
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish assigning taxonomy (3/7)")
 
     run_cmd(["mkdir", os.path.join(reads_data.dir_path, "exports")])
@@ -223,11 +198,11 @@ def export(*, output_dir: str, trim: int | tuple[int, int], trunc: int | tuple[i
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish cleaning taxonomy (4/7)")
 
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start exporting OTU (5/7)")
-    export_otu(reads_data, otu_output_file)
+    export_otu(reads_data)
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish exporting OTU (5/7)")
 
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start exporting taxonomy (6/7)")
-    export_taxonomy(reads_data, taxonomy_output_file)
+    export_taxonomy(reads_data, classifier_file_path)
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish exporting taxonomy (6/7)")
 
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start exporting phylogeny (7/7)")

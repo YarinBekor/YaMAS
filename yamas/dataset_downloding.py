@@ -20,5 +20,5 @@ def download(dataset_name, verbose):
     verbose_print("\n")
     verbose_print("download starts.")
 
-    acc_list_path = get_acc_list(dataset_name, verbose_print)
-    visualization(acc_list_path, dataset_name, verbose_print)
+    # acc_list_path = get_acc_list(dataset_name, verbose_print)
+    visualization("/home/yarinbekor/Desktop/YOLOLAB/DS_Downloading/auto_acc_list_downloader/ERP121217_acc_info.txt", dataset_name, verbose_print)
