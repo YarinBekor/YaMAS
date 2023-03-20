@@ -1,11 +1,11 @@
 import setuptools
 
 setuptools.setup(
-    name="YaMaS",
+    name="YaMAS",
     version="0.1",
     author="Yarin Bekor",
     author_email="yarin.bekor@domain.com",
-    description="YOLO lab Microbiome System",
+    description="YOLO Microbiome Analysis System",
     license='MIT',
     entry_points={
         'console_scripts': [
