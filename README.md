@@ -14,7 +14,8 @@ pip install yamas
 Before proceeding with the installation of YaMaS, please make sure that all dependencies are fulfilled. In case any of the dependencies are missing, the program will not run as expected. Please refer to the installation instructions and ensure that all requirements are met before proceeding.
 - YaMaS should be downloaded in a [qiime2](https://docs.qiime2.org/2023.2/) enviorment.
 - [SRA-toolkit](https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit) package should be downloaded in the enviorment.
-- [Entrez](https://biopython.org/docs/1.76/api/Bio.Entrez.html#) package should be downloaded in the enviorment.
+- [Entrez](https://anaconda.org/bioconda/entrez-direct) package should be downloaded in the enviorment.
+- Exporting a project requires a downloaded [classifier file](https://data.qiime2.org/<qiime2-version>/common/gg-13-8-99-nb-classifier.qza).
 
 ## Getting Started
 
