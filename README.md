@@ -21,10 +21,12 @@ Before proceeding with the installation of YaMAS, please make sure that all depe
 
 YaMAS provides an easy-to-use interface in the terminal.
 
-To download the visualization file for multiple projects and save each file to a separate folder, use the following command:
+To download a project, use the following command:
 ```
-yamas --download PRJEB12345
+yamas --download PRJEB01234
 ```
+Listing more than one project will download them one by one into different folders.
+
 To export an OTU (Operational Taxonomic Unit), taxonomy, and phylogeny tree for a single project, use the following command:
 ```
 yamas --export project_path trim trunc classifier_file threads
