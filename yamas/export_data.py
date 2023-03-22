@@ -133,14 +133,14 @@ def export_taxonomy(reads_data: ReadsData, classifier_file_path):
 
 def export_phylogeny(reads_data: ReadsData):
     # sequence alignment using mafft
-    input_file_path = os.path.join('qza', 'rep-seqs-dn-99.qza')
-    output_file_path = os.path.join('qza', 'aligned-rep-seqs.qza')
+    input_file_path = os.path.join(reads_data.dir_path,'qza', 'rep-seqs-dn-99.qza')
+    output_file_path = os.path.join(reads_data.dir_path,'qza', 'aligned-rep-seqs.qza')
     command = ["qiime", "alignment", "mafft", "--i-sequences", input_file_path, "--o-alignment", output_file_path]
     run_cmd(command)
 
     # Construct a phylogeny using fastree:
     input_file_path = output_file_path
-    output_file_path = os.path.join('qza', 'fasttree-tree.qza"')
+    output_file_path = os.path.join(reads_data.dir_path,'exports', 'fasttree-tree.qza')
 
     command = ["qiime", "phylogeny", "fasttree", "--i-alignment", input_file_path, "--o-tree", output_file_path,
                "--verbose"]
@@ -148,14 +148,7 @@ def export_phylogeny(reads_data: ReadsData):
 
     # Root the phylogeny:
     input_file_path = output_file_path
-    output_file_path = os.path.join('qza', "fasttree-tree-rooted.qza")
-
-    command = ["qiime", "phylogeny", "midpoint-root", "--i-tree", input_file_path, "--o-rooted-tree", output_file_path]
-    run_cmd(command)
-
-    # export
-    input_file_path = output_file_path
-    output_file_path = "exports"
+    output_file_path = os.path.join(reads_data.dir_path,'exports', "fasttree-tree-rooted.qza")
 
     command = ["qiime", "phylogeny", "midpoint-root", "--i-tree", input_file_path, "--o-rooted-tree", output_file_path]
     run_cmd(command)
