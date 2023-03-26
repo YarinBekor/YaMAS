@@ -1,7 +1,6 @@
 import argparse
-
+import json
 import pkg_resources
-
 from .dataset_downloding import download
 from .export_data import export
 
@@ -28,5 +27,8 @@ def main():
             print(f"missing {len(args.export)-1} arguments")
 
     if args.download:
+        with open('config.json') as f:
+            config = json.load(f)
+        specific_location = config.get('specific_location')
         for dataset_name in args.download:
-            download(dataset_name, args.verbose)
+            download(dataset_name, args.verbose, specific_location)

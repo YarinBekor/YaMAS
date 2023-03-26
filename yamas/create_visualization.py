@@ -23,8 +23,8 @@ def check_input(acc_list: str):
         print("Valid.")
 
 
-def create_dir(dir_name):
-    dir_path = os.path.join(os.path.abspath(""), dir_name)
+def create_dir(dir_name, specific_location):
+    dir_path = os.path.join(os.path.abspath(specific_location), dir_name)
 
     os.system(f"mkdir {dir_name}")
     print(f"{dir_name} created.")
@@ -121,7 +121,7 @@ def qiime_demux(reads_data: ReadsData, qza_file_path: str, dataset_id):
     run_cmd(command)
     return vis_file_path
 
-def visualization(acc_list, dataset_id, verbose_print):
+def visualization(acc_list, dataset_id, verbose_print, specific_location):
     verbose_print("\n")
     verbose_print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
     dir_name = f"{dataset_id}-{datetime.datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}"
@@ -136,7 +136,7 @@ def visualization(acc_list, dataset_id, verbose_print):
 
     verbose_print("\n")
     verbose_print("Creating a new directory for this dataset import:'", dir_name, "'")
-    dir_path = create_dir(dir_name)
+    dir_path = create_dir(dir_name,specific_location)
     verbose_print("Find ALL NEW data in:", dir_path)
 
     verbose_print("\n")
