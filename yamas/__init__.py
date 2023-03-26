@@ -1,7 +1,7 @@
 import argparse
 import json
 import pkg_resources
-from .dataset_downloding import download
+from .dataset_downloading import download
 from .export_data import export
 
 
