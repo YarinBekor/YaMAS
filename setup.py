@@ -11,5 +11,9 @@ setuptools.setup(
         'console_scripts': [
             'yamas = yamas:main',
         ]
+    },
+    packages=setuptools.find_packages(),
+    package_data={
+        'yamas': ['config.json']
     }
 )

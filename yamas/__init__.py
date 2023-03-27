@@ -27,8 +27,10 @@ def main():
             print(f"missing {len(args.export)-1} arguments")
 
     if args.download:
-        with open('config.json') as f:
+        config_path = pkg_resources.resource_filename(__name__, "config.json")
+        with open(config_path) as f:
             config = json.load(f)
         specific_location = config.get('specific_location')
         for dataset_name in args.download:
             download(dataset_name, args.verbose, specific_location)
+
