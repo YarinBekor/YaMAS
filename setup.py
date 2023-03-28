@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name="YaMAS",
+    name="YMS",
     version="0.1",
     author="Yarin Bekor",
     author_email="yarin.bekor@domain.com",
