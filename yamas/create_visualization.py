@@ -23,25 +23,32 @@ def check_input(acc_list: str):
         print("Valid.")
 
 
+import os
+
 def create_dir(dir_name, specific_location):
     dir_path = os.path.join(os.path.abspath(specific_location), dir_name)
 
-    os.system(f"mkdir {dir_name}")
-    print(f"{dir_name} created.")
+    os.makedirs(dir_path, exist_ok=True)
+    print(f"{dir_path} created.")
 
-    os.system(f"mkdir {os.path.join(dir_path, 'sra')}")
-    print(f"{dir_name}/sra created.")
+    sra_path = os.path.join(dir_path, 'sra')
+    os.makedirs(sra_path, exist_ok=True)
+    print(f"{sra_path} created.")
 
-    os.system(f"mkdir {os.path.join(dir_path, 'fastq')}")
-    print(f"{dir_name}/fastq created.")
+    fastq_path = os.path.join(dir_path, 'fastq')
+    os.makedirs(fastq_path, exist_ok=True)
+    print(f"{fastq_path} created.")
 
-    os.system(f"mkdir {os.path.join(dir_path, 'qza')}")
-    print(f"{dir_name}/qza created.")
+    qza_path = os.path.join(dir_path, 'qza')
+    os.makedirs(qza_path, exist_ok=True)
+    print(f"{qza_path} created.")
 
-    os.system(f"mkdir {os.path.join(dir_path, 'vis')}")
-    print(f"{dir_name}/vis created.")
+    vis_path = os.path.join(dir_path, 'vis')
+    os.makedirs(vis_path, exist_ok=True)
+    print(f"{vis_path} created.")
 
     return dir_path
+
 
 def download_data_from_sra(dir_path: str, acc_list: str = ""):
     run_cmd(['prefetch',
