@@ -2,9 +2,9 @@ import setuptools
 
 setuptools.setup(
     name="YMS",
-    version="0.63",
+    version="0.7",
     author="Yarin Bekor",
-    author_email="yarin.bekor@domain.com",
+    author_email="yarin.bekor@gmail.com",
     description="YOLO Microbiome Analysis System",
     license='MIT',
     entry_points={
