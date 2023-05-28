@@ -5,7 +5,7 @@ import os.path
 import pickle
 import datetime
 from tqdm import tqdm
-
+from metaphlan.utils.merge_metaphlan_tables import merge
 from .utilities import run_cmd, ReadsData, check_conda_qiime2
 
 CONDA_PREFIX = os.environ.get("CONDA_PREFIX", None)
@@ -66,9 +66,10 @@ def sra_to_fastq(dir_path: str):
         run_cmd(["fasterq-dump", "--split-files", sra_path, "-O", fastq_path])
 
     # check if reads include fwd and rev
-    fastqs = sorted(os.listdir(os.path.join(dir_path, "fastq")))[:3]
-    if len(set([fastq.split("_")[0] for fastq in fastqs])) == 1:
-        return ReadsData(dir_path, fwd=True, rev=True)
+    fastqs = os.listdir(os.path.join(dir_path, "fastq"))
+    for fastq in fastqs:
+        if '_' in fastq:
+            return ReadsData(dir_path, fwd=True, rev=True)
     return ReadsData(dir_path, fwd=True, rev=False)
 
 
@@ -128,7 +129,65 @@ def qiime_demux(reads_data: ReadsData, qza_file_path: str, dataset_id):
     run_cmd(command)
     return vis_file_path
 
-def visualization(acc_list, dataset_id, verbose_print, specific_location):
+def metaphlan_extraction(reads_data, dataset_id):
+    paired = reads_data.rev and reads_data.fwd
+    fastq_path = os.path.join(reads_data.dir_path, "fastq")
+    export_path = os.path.join(reads_data.dir_path, "export")
+    run_cmd([f"mkdir {export_path}"])
+    final_output_path = os.path.join(export_path, f'{dataset_id}_final.txt')
+    run_cmd([f"touch {final_output_path}"])
+    fastq_files = [a for a in os.listdir(fastq_path) if a.split(".")[-1] == "fastq"]
+    args = []
+    if paired:
+        print("paired")
+        for i in tqdm(range(0,len(fastq_files),2)):
+            fastq_name = fastq_files[i].split('_')[0]
+            fastq_1 = os.path.join(fastq_path, fastq_files[i])
+            fastq_2 = os.path.join(fastq_path, fastq_files[i+1])
+            output = os.path.join(fastq_path,f"{fastq_name}.bowtie2.bz2")
+            command = [f"metaphlan {fastq_1},{fastq_2} --input_type fastq --bowtie2out {output} --nproc 24"]
+            run_cmd(command)
+            final_output_file = os.path.join(os.path.join(reads_data.dir_path, 'qza'), f'{fastq_name}_profile.txt')
+            command = [f"metaphlan {output} --input_type bowtie2out --nproc 24 > {final_output_file}"]
+            run_cmd(command)
+            args.append(final_output_file)
+    else:
+        print("not paired")
+        for fastq in tqdm(fastq_files):
+            output = os.path.join(os.path.join(reads_data.dir_path, 'qza'), f'{fastq}_profile.txt')
+            fastq = os.path.join(fastq_path,fastq)
+            command = [f"metaphlan {fastq} --input_type fastq --nproc 24 > {output}"]
+            run_cmd(command)
+            args.append(output)
+    merge(args, open(final_output_path, 'w'), gtdb=False)
+
+def metaphlan_txt_csv(reads_data, dataset_id):
+    export_path = os.path.join(reads_data.dir_path, "export")
+    input_file = os.path.join(export_path,f"{dataset_id}_final.txt")
+    output_file = os.path.join(export_path,f"{dataset_id}_final_table.csv")
+    with open(input_file, 'r') as txt_file:
+        lines = txt_file.readlines()
+
+    # Extract data from the text file
+    headers = lines[0].strip().split('\t')
+    data = [line.strip().split('\t') for line in lines[1:]]
+
+    # Replace "|" with ","
+    headers = [header.replace('|', ',') for header in headers]
+    data = [[entry.replace('|', ',') for entry in row] for row in data]
+
+    # Transpose the data
+    transposed_data = list(map(list, zip(*data)))
+
+    # Write the transposed data to a CSV file
+    with open(output_file, 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(headers)
+        writer.writerows(transposed_data)
+
+    print(f"CSV file '{output_file}' has been created.")
+
+def visualization(acc_list, dataset_id, data_type, verbose_print, specific_location):
     verbose_print("\n")
     verbose_print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
     dir_name = f"{dataset_id}-{datetime.datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}"
@@ -156,34 +215,50 @@ def visualization(acc_list, dataset_id, verbose_print, specific_location):
     reads_data = sra_to_fastq(dir_path)
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (2/5)")
 
-    verbose_print("\n")
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (3/5)")
-    create_manifest(reads_data)
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (3/5)")
 
-    verbose_print("\n")
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (4/5)")
-    qza_file_path = qiime_import(reads_data)
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime import' (4/5)")
 
-    verbose_print("\n")
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime demux' (5/5)")
-    vis_file_path = qiime_demux(reads_data, qza_file_path, dataset_id)
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime demux' (5/5)")
+    if data_type == '16S':
 
-    pickle.dump(reads_data, open(os.path.join(reads_data.dir_path, "reads_data.pkl"), "wb"))
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating visualization\n")
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (3/5)")
+        create_manifest(reads_data)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (3/5)")
 
-    print(f"Visualization file is located in {vis_file_path}\n"
-          f"Please drag this file to https://view.qiime2.org/ and continue.\n")
-    if reads_data.fwd and reads_data.rev:
-        print(f"Note: The data has both forward and reverse reads.\n"
-              f"Therefore, you must give the parameters 'trim' and 'trunc' of export() "
-              f"as a tuple of two integers."
-              f"The first place related to the forward read and the second to the reverse.")
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (4/5)")
+        qza_file_path = qiime_import(reads_data)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime import' (4/5)")
+
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime demux' (5/5)")
+        vis_file_path = qiime_demux(reads_data, qza_file_path, dataset_id)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime demux' (5/5)")
+
+        pickle.dump(reads_data, open(os.path.join(reads_data.dir_path, "reads_data.pkl"), "wb"))
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating visualization\n")
+
+        print(f"Visualization file is located in {vis_file_path}\n"
+              f"Please drag this file to https://view.qiime2.org/ and continue.\n")
+        if reads_data.fwd and reads_data.rev:
+            print(f"Note: The data has both forward and reverse reads.\n"
+                  f"Therefore, you must give the parameters 'trim' and 'trunc' of export() "
+                  f"as a tuple of two integers."
+                  f"The first place related to the forward read and the second to the reverse.")
+        else:
+            print(f"Note: The data has only a forward read.\n"
+                  f"Therefore, you must give the parameters 'trim' and 'trunc' of export() "
+                  f"exactly one integers value which is related to the forward read.")
+
+        return reads_data.dir_path
     else:
-        print(f"Note: The data has only a forward read.\n"
-              f"Therefore, you must give the parameters 'trim' and 'trunc' of export() "
-              f"exactly one integers value which is related to the forward read.")
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (4/5)")
+        metaphlan_extraction(reads_data, dataset_id)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (4/5)")
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (5/5)")
+        metaphlan_txt_csv(reads_data, dataset_id)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (5/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading.\n")
 
-    return reads_data.dir_path
+

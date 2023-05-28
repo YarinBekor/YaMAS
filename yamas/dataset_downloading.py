@@ -14,11 +14,11 @@ def get_acc_list(bio_project_name, verbose_print):
     return f"{bio_project_name}_acc_info.txt"
 
 
-def download(dataset_name, verbose,specific_location):
+def download(dataset_name,data_type, verbose,specific_location):
     verbose_print = print if verbose else lambda *a, **k: None
 
     verbose_print("\n")
     verbose_print("download starts.")
 
     acc_list_path = get_acc_list(dataset_name, verbose_print)
-    visualization(acc_list_path, dataset_name, verbose_print,specific_location)
+    visualization(acc_list_path, dataset_name,data_type, verbose_print,specific_location)

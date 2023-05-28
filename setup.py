@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="YMS",
-    version="0.71",
+    version="0.99",
     author="Yarin Bekor",
     author_email="yarin.bekor@gmail.com",
     description="YOLO Microbiome Analysis System",
@@ -17,6 +17,7 @@ setuptools.setup(
         'yamas': ['config.json']
     },
     install_requires=[
-        'tqdm'
+        'tqdm',
+        'MetaPhlAn'
     ]
 )

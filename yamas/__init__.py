@@ -11,10 +11,11 @@ def main():
                         version='%(prog)s {version}'.format(version=pkg_resources.require("YMS")[0].version))
 
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
-    parser.add_argument('--verbose', action='store_true', help='Enable verbose mode')
+    parser.add_argument('--type', nargs=1, choices=['16S', 'Shotgun'], help='Type of data to be downloaded')
     parser.add_argument('--export', nargs=7,
                         help="output_dir, trim, trunc, classifier_file, otu_output_file, taxonomy_output_file, threads")
     parser.add_argument('--config', help='Path to config file')
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose mode')
     args = parser.parse_args()
 
     if args.config:
@@ -38,5 +39,9 @@ def main():
             print(f"missing {len(args.export)-1} arguments")
 
     if args.download:
-        for dataset_name in args.download:
-            download(dataset_name, args.verbose, specific_location)
+        if not(args.type):
+            raise ValueError("Missing dataset type. Use --type 16S/Shotgun")
+        else:
+            data_type = args.type[0]
+            for dataset_name in args.download:
+                download(dataset_name,data_type, args.verbose, specific_location)
