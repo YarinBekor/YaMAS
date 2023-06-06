@@ -1,8 +1,13 @@
 import setuptools
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 setuptools.setup(
     name="YMS",
-    version="0.99",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    version="1.0.0",
     author="Yarin Bekor",
     author_email="yarin.bekor@gmail.com",
     description="YOLO Microbiome Analysis System",
