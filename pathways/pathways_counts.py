@@ -28,7 +28,7 @@ def main():
     parser.add_argument("--reference-folder", required=True, help="Path to reference folder")
     parser.add_argument("--metaphlan-database", required=True, help="Path to metaphlan database folder")
     parser.add_argument("--fastq-file-1", required=True, help="Path to first fastq file")
-    parser.add_argument("--fastq-file-2", required=True, help="Path to second fastq file")
+    parser.add_argument("--fastq-file-2", help="Path to second fastq file")
     parser.add_argument("--install-metaphlan", action="store_true", help="Install metaphlan")
     parser.add_argument("--run-metaphlan-from-code", action="store_true", help="Run metaphlan from code")
     parser.add_argument("--run-metaphlan-from-terminal", action="store_true", help="Run metaphlan from terminal")
@@ -62,6 +62,11 @@ def main():
         else:
             print("Error: Please provide the --metaphlan-output argument.")
 
+    if args.fastq_file_2:
+        paired = "yes"
+    else:
+        paired = "no"
+
     # Create a list containing the names of the unique species identified
     species_list = search_species(metaphlan_output, main_folder_path, kegg_species)
     species_list.sort()
@@ -84,6 +89,9 @@ def main():
     # The final steps of the processing are done in R
     r_code = f'''
     # List of packages to check and install
+
+    paired <- "{paired}"
+    
     packages_to_install <- c("Rsubread", "GenomicRanges", "GenomicAlignments", "rtracklayer", "clusterProfiler")
 
     # Check if BiocManager is installed, if not, install it
@@ -118,13 +126,20 @@ def main():
     # Set the paths to your input files
     buildindex(basename = "my_index", reference = "{annotation_file}")
     readfile1 <- "{fastq_file_1}"  # Path to the first FASTQ file
-    readfile2 <- "{fastq_file_2}"  # Path to the second FASTQ file
+    if (paired == "yes"){{
+        readfile2 <- "{fastq_file_2}"  # Path to the second FASTQ file
+    }}
+
     annotation_directory <- "{reference_folder_path}"  # Path to the annotation directory
     dictionary_path <- "{dictionary_path}"  # Path to the json dictionary file
+    
 
-    # Align reads (execute only once)
-    align(index = "my_index", readfile1 = readfile1, readfile2 = readfile2, type = "rna", output_file = file.path(folder_path, "aligned_reads.bam"))
-
+    if (paired == "yes" ){{
+        align(index = "my_index", readfile1 = readfile1, readfile2 = readfile2, type = "rna", output_file = file.path(folder_path, "aligned_reads.bam"))
+    }} else {{
+        align(index = "my_index", readfile1 = readfile1, type = "rna", output_file = file.path(folder_path, "aligned_reads.bam"))
+    }}
+    
     # Load species_list from a .txt file in the folder path
     species_list <- scan(file.path(folder_path, "species_list.txt"), what = "character")
 

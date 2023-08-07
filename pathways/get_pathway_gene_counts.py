@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import numpy as np
-from scipy.stats import randint
 
 # This function take spreadsheets containing gene counts and uses statistical analysis to give them relative pathway scores
 def calculate_log_adjusted(actual, average):
@@ -69,3 +68,8 @@ def calculate_pathway_sums(output_folder, pathway_dict_file, selected_pathways):
 
             pathway_sums_df.to_csv(pathway_sums_output_path)
             print("Pathway sums spreadsheet saved:", pathway_sums_output_path)
+
+output_folder = "/home/yisrael/Desktop/sample_csvs"
+pathways_dict = "/home/yisrael/Desktop/pathways_files/pathway_dictionary.txt"
+pathways = [ "00010" , "00020" , "00030"]
+calculate_pathway_sums(output_folder, pathways_dict, pathways)
