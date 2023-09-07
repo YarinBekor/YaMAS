@@ -57,20 +57,26 @@ def download_data_from_sra(dir_path: str, acc_list: str = ""):
              "--max-size", "u"])
 
 
-def sra_to_fastq(dir_path: str):
+def sra_to_fastq(dir_path: str,data_type):
     print(f"converting files from .sra to .fastq.")
     for sra_dir in tqdm(os.listdir(os.path.join(dir_path, "sra")), desc="converted files"):
         sra_file = os.listdir(os.path.join(dir_path, "sra", sra_dir))[0]
         sra_path = os.path.join(dir_path, "sra", sra_dir, sra_file)
         fastq_path = os.path.join(dir_path, "fastq")
         run_cmd(["fasterq-dump", "--split-files", sra_path, "-O", fastq_path])
-
-    # check if reads include fwd and rev
-    fastqs = os.listdir(os.path.join(dir_path, "fastq"))
-    for fastq in fastqs:
-        if '_' in fastq:
+    if data_type == '16S':
+        # check if reads include fwd and rev
+        fastqs = sorted(os.listdir(os.path.join(dir_path, "fastq")))[:3]
+        if len(set([fastq.split("_")[0] for fastq in fastqs])) == 1:
             return ReadsData(dir_path, fwd=True, rev=True)
-    return ReadsData(dir_path, fwd=True, rev=False)
+        return ReadsData(dir_path, fwd=True, rev=False)
+    else:
+        # check if reads include fwd and rev
+        fastqs = os.listdir(os.path.join(dir_path, "fastq"))
+        for fastq in fastqs:
+            if '_' in fastq:
+                return ReadsData(dir_path, fwd=True, rev=True)
+        return ReadsData(dir_path, fwd=True, rev=False)
 
 
 def create_manifest(reads_data: ReadsData):
@@ -212,7 +218,7 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
 
     verbose_print("\n")
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start conversion (2/5)")
-    reads_data = sra_to_fastq(dir_path)
+    reads_data = sra_to_fastq(dir_path,data_type)
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (2/5)")
 
 
