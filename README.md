@@ -28,12 +28,12 @@ yamas --download PRJEB01234 --type 16S
 ```
 To export an OTU (Operational Taxonomic Unit), taxonomy, and phylogeny tree for a single project, use the following command:
 ```
-yamas --export <project_path> <trim> <trunc> <classifier_file> <threads>
+yamas --export <project_path> <start> <end> <classifier_file> <threads>
 ```
 Arguments:
 - project_path: path to the project directory (created by YaMAS in the previous step).
 - classifier_file: path to the trained classifier file. 
-- trim & trunc: choose graph edges. 
+- start & end: choose graph edges. 
 - threads: specifies the number of threads to use for parallel processing, which can speed up the export process (default is 12).
 
 ### Shotgun dataset
