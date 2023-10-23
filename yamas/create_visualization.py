@@ -193,12 +193,15 @@ def metaphlan_txt_csv(reads_data, dataset_id):
 
     print(f"CSV file '{output_file}' has been created.")
 
+# This function is the main function to download the project. It Hnadles all the download flow for 16S and Shotgun.
 def visualization(acc_list, dataset_id, data_type, verbose_print, specific_location):
     verbose_print("\n")
     verbose_print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
-    dir_name = f"{dataset_id}-{datetime.datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}"
-    verbose_print("Starting conversion to VIS file")
 
+    # Decide directory name
+    dir_name = f"{dataset_id}-{datetime.datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}"
+
+    # Check if the enviorment is qiime2 type.
     verbose_print("\n")
     verbose_print('Checking environment...', end=" ")
     check_conda_qiime2()
@@ -208,9 +211,11 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
 
     verbose_print("\n")
     verbose_print("Creating a new directory for this dataset import:'", dir_name, "'")
+    # Path to working dir:
     dir_path = create_dir(dir_name,specific_location)
     verbose_print("Find ALL NEW data in:", dir_path)
 
+    # This two stages are for all data type. Prefetching the data from the relevant database, and converting it to fatsqs.
     verbose_print("\n")
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start prefetch (1/5)")
     download_data_from_sra(dir_path, acc_list)
@@ -261,10 +266,13 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (4/5)")
         metaphlan_extraction(reads_data, dataset_id)
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (4/5)")
+        
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (5/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (5/5)")
         metaphlan_txt_csv(reads_data, dataset_id)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (5/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (5/5)")
+        
+        verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading.\n")
 
 

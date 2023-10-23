@@ -1,7 +1,7 @@
 from .create_visualization import visualization
 import os
 
-
+# This function downloads the accession list for the specified project (Using the SRA databse, which holds all the necessery metadata.)
 def get_acc_list(bio_project_name, verbose_print):
     get_run_info_command = f'esearch -db sra -query {bio_project_name} | efetch -format runinfo > {bio_project_name}_run_info.csv'
     os.system(get_run_info_command)
