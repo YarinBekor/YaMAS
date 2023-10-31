@@ -7,7 +7,7 @@ setuptools.setup(
     name="YMS",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version="1.0.6",
+    version="1.0.7",
     author="Yarin Bekor",
     author_email="yarin.bekor@gmail.com",
     description="YOLO Microbiome Analysis System",
