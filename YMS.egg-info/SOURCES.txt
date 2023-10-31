@@ -11,4 +11,5 @@ yamas/config.json
 yamas/create_visualization.py
 yamas/dataset_downloading.py
 yamas/export_data.py
+yamas/prerun_configs.py
 yamas/utilities.py

@@ -226,7 +226,9 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
     reads_data = sra_to_fastq(dir_path,data_type)
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (2/5)")
 
-    if data_type == '16S' or data_type == "18S":
+
+
+    if data_type == '16S':
 
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (3/5)")

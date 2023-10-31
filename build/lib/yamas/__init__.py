@@ -3,8 +3,8 @@ import json
 import pkg_resources
 from .dataset_downloading import download
 from .export_data import export
-
-
+from .prerun_configs import set_enviorment
+ 
 def main():
     # Initialize the argument parser with a description.
     parser = argparse.ArgumentParser(description='YMS package')
@@ -13,15 +13,17 @@ def main():
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {version}'.format(version=pkg_resources.require("YMS")[0].version))
 
+    parser.add_argument('--ready',nargs=1,choices=['Ubuntu', 'CentOS', 'MacOS'], help='Type of Operating system')
+
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
 
     # Add an argument for specifying the type of data to be downloaded (16S or Shotgun).
-    parser.add_argument('--type', nargs=1, choices=['16S', 'Shotgun','18S'], help='Type of data to be downloaded')
+    parser.add_argument('--type', nargs=1, choices=['16S', '18S', 'Shotgun'], help='Type of data to be downloaded')
 
     # Add an argument for specifying export parameters.
     parser.add_argument('--export', nargs=6,
-                        help="origin_dir_path, data_type, start, end, classifier_file, threads")
+                        help="origin_dir_path,type, start, end, classifier_file, threads")
 
     # Add an argument for specifying the path to a configuration file.
     parser.add_argument('--config', help='Path to config file')
@@ -31,6 +33,10 @@ def main():
 
     # Parse the command line arguments.
     args = parser.parse_args()
+
+
+    if args.ready:
+        set_enviorment(args.ready[0])
 
     if args.config:
         # If a config file path is provided, load the configuration from the file.
@@ -48,20 +54,20 @@ def main():
         try:
             # Extract export parameters from the command line arguments.
             origin_dir = args.export[0]
-            data_type = args.export[1]
+            data_type= args.export[1]
             trim = int(args.export[2])
             trunc = int(args.export[3])
             classifier_file = args.export[4]
             threads = args.export[5]
 
             # Call the export function with the specified parameters.
-            export(origin_dir, data_type, trim, trunc, classifier_file, threads)
+            export(origin_dir, data_type,trim, trunc, classifier_file, threads)
         except IndexError:
             # Handle the case where the number of export arguments is insufficient.
             print(f"missing {len(args.export)-1} arguments")
 
     if args.download:
-        if not args.type:
+        if not(args.type):
             # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/Shotgun")
         else:
