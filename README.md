@@ -15,23 +15,24 @@ You are now ready to run and install YaMAS in the newly created and activated qi
 To install YaMAS, you can use pip:
 
 ```
-pip install yamas
+pip install YMS
 ```
 
 ## Getting Started
 
 YaMAS provides an easy-to-use interface in the terminal.
 To download a project, use the one of the following templates:
-### 16S dataset
+### 16S/18S dataset
 ```
-yamas --download PRJEB01234 --type 16S 
+yamas --download PRJEB01234 --type 16S/18S 
 ```
 To export an OTU (Operational Taxonomic Unit), taxonomy, and phylogeny tree for a single project, use the following command:
 ```
-yamas --export <project_path> <start> <end> <classifier_file> <threads>
+yamas --export <project_path> <data_type> <start> <end> <classifier_file> <threads>
 ```
 Arguments:
 - project_path: path to the project directory (created by YaMAS in the previous step).
+- data_type: choose one of the following types: 16S / 18S 
 - classifier_file: path to the trained classifier file. 
 - start & end: choose graph edges. 
 - threads: specifies the number of threads to use for parallel processing, which can speed up the export process (default is 12).
