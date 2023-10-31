@@ -4,7 +4,7 @@ import pkg_resources
 from .dataset_downloading import download
 from .export_data import export
 from .prerun_configs import set_enviorment
-
+ 
 def main():
     # Initialize the argument parser with a description.
     parser = argparse.ArgumentParser(description='YMS package')
@@ -13,8 +13,8 @@ def main():
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {version}'.format(version=pkg_resources.require("YMS")[0].version))
 
-    parser.add_argument('--ready',nargs=1,choices=['16S', 'Shotgun'], help='Type of Operating system')
-    
+    parser.add_argument('--ready',nargs=1,choices=['Ubuntu','CentOS','MacOS'], help='Type of Operating system')
+
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
 
