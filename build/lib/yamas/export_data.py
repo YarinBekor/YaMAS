@@ -65,6 +65,7 @@ def cluster_features(reads_data: ReadsData):
     run_cmd(command)
 
 
+
 def assign_taxonomy(reads_data: ReadsData,data_type:str, classifier_path: str):
     if data_type == "16S":
         qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
@@ -72,7 +73,7 @@ def assign_taxonomy(reads_data: ReadsData,data_type:str, classifier_path: str):
             "qiime", "feature-classifier", "classify-sklearn",
             "--i-reads", qza_path("rep-seqs-dn-99.qza"),
             "--i-classifier", classifier_path,
-            "--o-classification", qza_path("gg-13-8-99-nb-classified.qza")
+            "--o-classification", qza_path("silva-138-99-nb-classifier.qza")
         ]
         run_cmd(command)
     if data_type == "18S":
@@ -81,10 +82,9 @@ def assign_taxonomy(reads_data: ReadsData,data_type:str, classifier_path: str):
             "qiime", "feature-classifier", "classify-sklearn",
             "--i-reads", qza_path("rep-seqs-dn-99.qza"),
             "--i-classifier", classifier_path,
-            "--o-classification", qza_path("silva-138-99-seqs.qza")
+            "--o-classification", qza_path("gg-13-8-99-nb-classified.qza")
         ]
         run_cmd(command)
-
 
 
 def clean_taxonomy1(reads_data: ReadsData):
