@@ -75,7 +75,7 @@ def assign_taxonomy(reads_data: ReadsData,data_type:str, classifier_path: str):
             "--o-classification", qza_path("gg-13-8-99-nb-classified.qza")
         ]
         run_cmd(command)
-    if data_type == "16S":
+    if data_type == "18S":
         qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
         command = [
             "qiime", "feature-classifier", "classify-sklearn",
