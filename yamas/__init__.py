@@ -3,7 +3,7 @@ import json
 import pkg_resources
 from .dataset_downloading import download
 from .export_data import export
-
+from .prerun_configs import set_enviorment
 
 def main():
     # Initialize the argument parser with a description.
@@ -13,6 +13,8 @@ def main():
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {version}'.format(version=pkg_resources.require("YMS")[0].version))
 
+    parser.add_argument('--ready',nargs=1,choices=['16S', 'Shotgun'], help='Type of Operating system')
+    
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
 
@@ -20,8 +22,8 @@ def main():
     parser.add_argument('--type', nargs=1, choices=['16S', 'Shotgun'], help='Type of data to be downloaded')
 
     # Add an argument for specifying export parameters.
-    parser.add_argument('--export', nargs=5,
-                        help="origin_dir_path, start, end, classifier_file, threads")
+    parser.add_argument('--export', nargs=6,
+                        help="origin_dir_path,type, start, end, classifier_file, threads")
 
     # Add an argument for specifying the path to a configuration file.
     parser.add_argument('--config', help='Path to config file')
@@ -31,6 +33,10 @@ def main():
 
     # Parse the command line arguments.
     args = parser.parse_args()
+
+
+    if args.ready:
+        set_enviorment(args.ready[0])
 
     if args.config:
         # If a config file path is provided, load the configuration from the file.
