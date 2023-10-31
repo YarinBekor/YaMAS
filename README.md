@@ -39,7 +39,7 @@ Arguments:
 
 ### Shotgun dataset
 ```
-    yamas --download PRJEB01234 --type Shotgun 
+yamas --download PRJEB01234 --type Shotgun 
 ```
 
 ### Other arguments and configurations
