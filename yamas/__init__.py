@@ -3,7 +3,7 @@ import json
 import pkg_resources
 from .dataset_downloading import download
 from .export_data import export
-from .prerun_configs import set_enviorment
+from .prerun_configs import set_environment
 
 def main():
     # Initialize the argument parser with a description.
@@ -13,7 +13,7 @@ def main():
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {version}'.format(version=pkg_resources.require("YMS")[0].version))
 
-    parser.add_argument('--ready',nargs=1,choices=['16S', 'Shotgun'], help='Type of Operating system')
+    parser.add_argument('--ready',nargs=1,choices=['Ubuntu', 'CentOS'], help='Type of Operating system')
     
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
@@ -23,7 +23,7 @@ def main():
 
     # Add an argument for specifying export parameters.
     parser.add_argument('--export', nargs=6,
-                        help="origin_dir_path,type, start, end, classifier_file, threads")
+                        help="origin_dir_path, data_type, start, end, classifier_file, threads")
 
     # Add an argument for specifying the path to a configuration file.
     parser.add_argument('--config', help='Path to config file')
@@ -36,7 +36,7 @@ def main():
 
 
     if args.ready:
-        set_enviorment(args.ready[0])
+        set_environment(args.ready[0])
 
     if args.config:
         # If a config file path is provided, load the configuration from the file.
@@ -54,13 +54,14 @@ def main():
         try:
             # Extract export parameters from the command line arguments.
             origin_dir = args.export[0]
-            trim = int(args.export[1])
-            trunc = int(args.export[2])
-            classifier_file = args.export[3]
-            threads = args.export[4]
+            data_type= args.export[1]
+            trim = int(args.export[2])
+            trunc = int(args.export[3])
+            classifier_file = args.export[4]
+            threads = args.export[5]
 
             # Call the export function with the specified parameters.
-            export(origin_dir, trim, trunc, classifier_file, threads)
+            export(origin_dir,data_type,trim, trunc, classifier_file, threads)
         except IndexError:
             # Handle the case where the number of export arguments is insufficient.
             print(f"missing {len(args.export)-1} arguments")
