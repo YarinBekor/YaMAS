@@ -11,7 +11,7 @@ def set_environment(operating_system_type):
     version="sratoolkit.3.0.7-centos_linux64"
 
     command = command_based_on_os[operating_system_type]
-    print("######   Downloading SRA Toolkit   ")
+    print("######   Downloading SRA Toolkit")
     run_cmd(command)
 
     print("######   Extracting the contents of the tar file   ")
