@@ -1,3 +1,0 @@
-[console_scripts]
-yamas = yamas:main
-
