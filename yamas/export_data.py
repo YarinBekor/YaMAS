@@ -65,27 +65,52 @@ def cluster_features(reads_data: ReadsData):
     run_cmd(command)
 
 
-def assign_taxonomy(reads_data: ReadsData, classifier_path: str):
-    qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
-    command = [
-        "qiime", "feature-classifier", "classify-sklearn",
-        "--i-reads", qza_path("rep-seqs-dn-99.qza"),
-        "--i-classifier", classifier_path,
-        "--o-classification", qza_path("gg-13-8-99-nb-classified.qza")
-    ]
-    run_cmd(command)
+def assign_taxonomy(reads_data: ReadsData, data_type, classifier_path: str):
+
+    if data_type == '16S':
+        qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
+        command = [
+            "qiime", "feature-classifier", "classify-sklearn",
+            "--i-reads", qza_path("rep-seqs-dn-99.qza"),
+            "--i-classifier", classifier_path,
+            "--o-classification", qza_path("gg-13-8-99-nb-classified.qza")
+        ]
+        run_cmd(command)
+
+    if data_type == '18S':
+        qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
+        command = [
+            "qiime", "feature-classifier", "classify-sklearn",
+            "--i-reads", qza_path("rep-seqs-dn-99.qza"),
+            "--i-classifier", classifier_path,
+            "--o-classification", qza_path("silva-trained-classifier.qza")
+        ]
+        run_cmd(command)
 
 
-def clean_taxonomy1(reads_data: ReadsData):
-    qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
-    command = [
-        "qiime", "taxa", "filter-table",
-        "--i-table", qza_path("table-dn-99.qza"),
-        "--i-taxonomy", qza_path("gg-13-8-99-nb-classified.qza"),
-        "--p-exclude", "mitochondria,chloroplast",
-        "--o-filtered-table", qza_path("clean_table.qza")
-    ]
-    run_cmd(command)
+def clean_taxonomy1(reads_data: ReadsData, data_type):
+
+    if data_type == '16S':
+        qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
+        command = [
+            "qiime", "taxa", "filter-table",
+            "--i-table", qza_path("table-dn-99.qza"),
+            "--i-taxonomy", qza_path("gg-13-8-99-nb-classified.qza"),
+            "--p-exclude", "mitochondria,chloroplast",
+            "--o-filtered-table", qza_path("clean_table.qza")
+        ]
+        run_cmd(command)
+
+    if data_type == '18S':
+        qza_path = lambda filename: os.path.join(reads_data.dir_path, "qza", filename)
+        command = [
+            "qiime", "taxa", "filter-table",
+            "--i-table", qza_path("table-dn-99.qza"),
+            "--i-taxonomy", qza_path("silva-trained-classifier.qza"),
+            "--p-exclude", "mitochondria,chloroplast",
+            "--o-filtered-table", qza_path("clean_table.qza")
+        ]
+        run_cmd(command)
 
 
 def clean_taxonomy2(reads_data: ReadsData):
@@ -120,15 +145,28 @@ def export_otu(reads_data: ReadsData):
     run_cmd(command)
 
 
-def export_taxonomy(reads_data: ReadsData, classifier_file_path):
-    output_file = os.path.join(reads_data.dir_path, "exports", "tax.tsv")
-    # export
-    command = [
-        "qiime", "tools", "export",
-        "--input-path", os.path.join(reads_data.dir_path, "qza", "gg-13-8-99-nb-classified.qza"),
-        "--output-path", output_file
-    ]
-    run_cmd(command)
+def export_taxonomy(reads_data: ReadsData, data_type ,classifier_file_path):
+
+    if data_type == '16S':
+        output_file = os.path.join(reads_data.dir_path, "exports", "tax.tsv")
+        # export
+        command = [
+            "qiime", "tools", "export",
+            "--input-path", os.path.join(reads_data.dir_path, "qza", "gg-13-8-99-nb-classified.qza"),
+            "--output-path", output_file
+        ]
+        run_cmd(command)
+
+    if data_type == '18S':
+        output_file = os.path.join(reads_data.dir_path, "exports", "tax.tsv")
+        # export
+        command = [
+            "qiime", "tools", "export",
+            "--input-path", os.path.join(reads_data.dir_path, "qza", "silva-trained-classifier.qza"),
+            "--output-path", output_file
+        ]
+        run_cmd(command)
+
 
 
 def export_phylogeny(reads_data: ReadsData):
@@ -154,9 +192,11 @@ def export_phylogeny(reads_data: ReadsData):
     run_cmd(command)
 
 
+
 def export(output_dir: str,data_type, trim, trunc, classifier_file_path: str, threads: int = 12):
     print("\n")
     print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
+    print(f"\n##  Exporting {data_type}  ##\n")
     print("Starting OTU & TAXONOMY files extraction")
 
     check_conda_qiime2()
@@ -179,14 +219,14 @@ def export(output_dir: str,data_type, trim, trunc, classifier_file_path: str, th
 
     print("\n")
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start assigning taxonomy (3/7)")
-    assign_taxonomy(reads_data, classifier_file_path)
+    assign_taxonomy(reads_data, data_type, classifier_file_path)
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish assigning taxonomy (3/7)")
 
     run_cmd(["mkdir", os.path.join(reads_data.dir_path, "exports")])
 
     print("\n")
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start cleaning taxonomy (4/7)")
-    clean_taxonomy1(reads_data)
+    clean_taxonomy1(reads_data, data_type)
     clean_taxonomy2(reads_data)
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish cleaning taxonomy (4/7)")
 
@@ -195,9 +235,11 @@ def export(output_dir: str,data_type, trim, trunc, classifier_file_path: str, th
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish exporting OTU (5/7)")
 
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start exporting taxonomy (6/7)")
-    export_taxonomy(reads_data, classifier_file_path)
+    export_taxonomy(reads_data, data_type, classifier_file_path)
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish exporting taxonomy (6/7)")
 
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start exporting phylogeny (7/7)")
     export_phylogeny(reads_data)
     print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish exporting phylogeny (7/7)")
+
+    print(f"\n##  FINISH exporting {data_type} data  ##\n")
