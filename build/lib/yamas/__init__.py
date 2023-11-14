@@ -2,6 +2,7 @@ import argparse
 import json
 import pkg_resources
 from .dataset_downloading import download
+from .dataset_downloading import continue_from
 from .export_data import export
 from .prerun_configs import set_environment
 
@@ -14,16 +15,19 @@ def main():
                         version='%(prog)s {version}'.format(version=pkg_resources.require("YMS")[0].version))
 
     parser.add_argument('--ready',nargs=1,choices=['Ubuntu', 'CentOS'], help='Type of Operating system')
-    
+
+    parser.add_argument('--continue_from', nargs=2, metavar=('PATH', 'DATA_TYPE'), help='Continue processing from a specific path with a given data type')
+
+
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
 
     # Add an argument for specifying the type of data to be downloaded (16S or Shotgun).
-    parser.add_argument('--type', nargs=1, choices=['16S', 'Shotgun'], help='Type of data to be downloaded')
+    parser.add_argument('--type', nargs=1, choices=['16S','18S', 'Shotgun'], help='Type of data to be downloaded')
 
     # Add an argument for specifying export parameters.
-    parser.add_argument('--export', nargs=6,
-                        help="origin_dir_path, data_type, start, end, classifier_file, threads")
+    parser.add_argument('--export', nargs=6, metavar=("origin_dir_path", "data_type", "start", "end", "classifier_file", "threads"),
+                        help="Must provide: origin_dir_path, data_type, start, end, classifier_file, threads")
 
     # Add an argument for specifying the path to a configuration file.
     parser.add_argument('--config', help='Path to config file')
@@ -67,11 +71,28 @@ def main():
             print(f"missing {len(args.export)-1} arguments")
 
     if args.download:
-        if not(args.type):
+        if not args.type:
             # Ensure that a dataset type is specified when downloading datasets.
-            raise ValueError("Missing dataset type. Use --type 16S/Shotgun")
+            raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
         else:
             # Extract the dataset type and iterate over the specified dataset names for downloading.
             data_type = args.type[0]
             for dataset_name in args.download:
                 download(dataset_name, data_type, args.verbose, specific_location)
+
+    if args.continue_from:
+
+        continue_path= args.continue_from[0]
+        data_type = args.continue_from[1]
+        print(f"{continue_path}, {data_type}")
+        if data_type=='16S' or data_type=='18S' or data_type=='Shotgun':
+            print("Yes")
+            continue_from(continue_path,data_type, args.verbose, specific_location)
+
+        else:
+            # Ensure that a dataset type is specified when downloading datasets.
+            raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
+
+
+
+

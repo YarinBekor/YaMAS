@@ -1,3 +1,5 @@
+import os
+
 from .utilities import run_cmd
 
 command_based_on_os = {'Ubuntu': ['wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz'],
@@ -8,6 +10,7 @@ command_based_on_os = {'Ubuntu': ['wget --output-document sratoolkit.tar.gz http
 def set_environment(operating_system_type):
 
     #defualt. it will update soon based on your os
+    default_path= 'export PATH=$PATH:$PWD/sratoolkit.3.0.7-centos_linux64/bin'
     version="sratoolkit.3.0.7-centos_linux64"
 
     command = command_based_on_os[operating_system_type]
@@ -21,13 +24,14 @@ def set_environment(operating_system_type):
         version = last_line.split("/")[0]
 
     print(f"######   export PATH   ")
-    run_cmd([f'export PATH=$PATH:$PWD/{version}/bin'])
+    # run_cmd([f'export PATH=$PATH:$PWD/{version}/bin'])
+    os.environ['PATH'] = f"{os.environ['PATH']}:{os.getcwd()}/{version}/bin"
 
     print("######   Checking if we are ready to go...   ")
     run_cmd(['which fastq-dump > check_fastq-dump.txt'])
     with open('check_fastq-dump.txt', 'r') as check_file:
         content= check_file.read()
         if f'{version}/bin/fastq-dump' in content:
-            print("######   YAMAS is ready to run!   ######")
+            print(f"\n######   Please run the following command in your terminal:   ######\n######   export PATH=$PATH:$PWD/{version}/bin   ######\n######   YAMAS is ready to run!   ###### ")
         else:
             print("######   YAMAS is NOT ready! Try again or you can set the environment by yourself.\n  Follow the instructions (from step 2) that can be found in git: https://github.com/YarinBekor/YaMAS.   ######\n    ")
