@@ -1,6 +1,8 @@
 from .create_visualization import visualization
 from .create_visualization import visualization_continue
+from .create_visualization import visualization_continue_fastq
 import os
+
 
 # This function downloads the accession list for the specified project (Using the SRA databse, which holds all the necessery metadata.)
 def get_acc_list(bio_project_name, verbose_print):
@@ -15,18 +17,27 @@ def get_acc_list(bio_project_name, verbose_print):
     return f"{bio_project_name}_acc_info.txt"
 
 
-def download(dataset_name,data_type, verbose,specific_location):
+def download(dataset_name, data_type, verbose, specific_location):
     verbose_print = print if verbose else lambda *a, **k: None
 
     verbose_print("\n")
     verbose_print("download starts.")
 
     acc_list_path = get_acc_list(dataset_name, verbose_print)
-    visualization(acc_list_path, dataset_name,data_type, verbose_print,specific_location)
+    visualization(acc_list_path, dataset_name, data_type, verbose_print, specific_location)
 
-def continue_from(continue_path,data_type,verbose, specific_location):
+
+def continue_from(continue_path, data_type, verbose, specific_location):
     verbose_print = print if verbose else lambda *a, **k: None
 
     verbose_print("\n")
     verbose_print(f"Continue downloading from {continue_path}.")
-    visualization_continue(continue_path,data_type,verbose_print, specific_location)
+    visualization_continue(continue_path, data_type, verbose_print, specific_location)
+
+
+def continue_from_fastq(continue_path, data_type, verbose, specific_location):
+    verbose_print = print if verbose else lambda *a, **k: None
+
+    verbose_print("\n")
+    verbose_print(f"Continue downloading from {continue_path}.")
+    visualization_continue_fastq(continue_path, data_type, verbose_print, specific_location)

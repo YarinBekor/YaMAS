@@ -217,34 +217,39 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
     # Path to working dir:
     dir_path = create_dir(dir_name,specific_location)
     verbose_print("Find ALL NEW data in:", dir_path)
+    json_file_path=f"{dir_path}/metadata.json"
+
 
     # This two stages are for all data type. Prefetching the data from the relevant database, and converting it to fatsqs.
     verbose_print("\n")
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start prefetch (1/5)")
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start prefetch (1/6)")
     download_data_from_sra(dir_path, acc_list)
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish prefetch (1/5)")
+
+    data_json["dir_path"] = dir_path
+    data_json["dataset_id"] = dataset_id
+    with open(json_file_path, "w") as json_file:
+        json.dump(data_json, json_file)
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish prefetch (1/6)")
+
 
     verbose_print("\n")
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start conversion (2/5)")
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start conversion (2/6)")
     reads_data = sra_to_fastq(dir_path,data_type)
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (2/5)")
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (2/6)")
 
 
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating metadata.json (3/5)")
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating metadata.json (3/6)")
 
     # Store dir_path and reads_data in the data_json dictionary
-    data_json["dir_path"] = dir_path
-    # data_json["type"]= data_type
+    data_json["type"]= data_type
     data_json["read_data_fwd"]= reads_data.fwd
     data_json["read_data_rev"]= reads_data.rev
-    data_json["dataset_id"]= dataset_id
 
-    json_file_path=f"{dir_path}/metadata.json"
 
     with open(json_file_path, "w") as json_file:
         json.dump(data_json, json_file)
 
-    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating metadata.json (3/5)")
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating metadata.json (3/6)")
 
 
     if data_type == '16S' or data_type == '18S':
@@ -282,21 +287,106 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         return reads_data.dir_path
     else:
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (4/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (4/6)")
         metaphlan_extraction(reads_data, dataset_id)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (4/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (4/6)")
 
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (5/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (5/6)")
         metaphlan_txt_csv(reads_data, dataset_id)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (5/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (5/6)")
 
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading.\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 6/6 \n")
 
+
+def visualization_continue_fastq(continue_path, data_type,verbose_print, specific_location):
+
+    verbose_print("\n")
+    verbose_print('Checking environment...', end=" ")
+    check_conda_qiime2()
+    verbose_print('Done.')
+
+    verbose_print("\n")
+    data_json={}
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start conversion (1/5)")
+    reads_data = sra_to_fastq(continue_path,data_type)
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (1/5)")
+
+
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating metadata.json (2/5)")
+
+    # Store dir_path and reads_data in the data_json dictionary
+    # data_json["type"]= data_type
+    data_json["read_data_fwd"]= reads_data.fwd
+    data_json["read_data_rev"]= reads_data.rev
+
+    json_file_path=f'{data_json["dir_path"]}/metadata.json'
+
+    with open(json_file_path, "w") as json_file:
+        json.dump(data_json, json_file)
+
+    verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating metadata.json (2/5)")
+
+    with open(json_file_path, 'r') as json_file:
+        data_json = json.load(json_file)
+        dir_path = data_json.get("dir_path")
+        dataset_id = data_json.get("dataset_id")
+
+    if data_type == '16S' or data_type == '18S':
+
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (3/5)")
+        create_manifest(reads_data)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (3/5)")
+
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (4/5)")
+        qza_file_path = qiime_import(reads_data)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime import' (4/5)")
+
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime demux' (5/5)")
+        vis_file_path = qiime_demux(reads_data, qza_file_path, dataset_id)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime demux' (5/5)")
+
+        pickle.dump(reads_data, open(os.path.join(reads_data.dir_path, "reads_data.pkl"), "wb"))
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating visualization\n")
+
+        print(f"Visualization file is located in {vis_file_path}\n"
+              f"Please drag this file to https://view.qiime2.org/ and continue.\n")
+        if reads_data.fwd and reads_data.rev:
+            print(f"Note: The data has both forward and reverse reads.\n"
+                  f"Therefore, you must give the parameters 'trim' and 'trunc' of export() "
+                  f"as a tuple of two integers."
+                  f"The first place related to the forward read and the second to the reverse.")
+        else:
+            print(f"Note: The data has only a forward read.\n"
+                  f"Therefore, you must give the parameters 'trim' and 'trunc' of export() "
+                  f"exactly one integers value which is related to the forward read.")
+
+        return reads_data.dir_path
+    else:
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (3/5)")
+        metaphlan_extraction(reads_data, dataset_id)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (3/5)")
+
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (4/5)")
+        metaphlan_txt_csv(reads_data, dataset_id)
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (4/5)")
+
+        verbose_print("\n")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 5/5 \n")
 
 
 def visualization_continue(continue_path, data_type,verbose_print, specific_location):
+
+    verbose_print("\n")
+    verbose_print('Checking environment...', end=" ")
+    check_conda_qiime2()
+    verbose_print('Done.')
 
     json_file_path= f"{continue_path}/metadata.json"
     try:
@@ -315,19 +405,19 @@ def visualization_continue(continue_path, data_type,verbose_print, specific_loca
     if data_type == '16S' or data_type == '18S':
 
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (4/6)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (1/3)")
         create_manifest(reads_data)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (4/6)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (1/3)")
 
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (5/6)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (2/3)")
         qza_file_path = qiime_import(reads_data)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime import' (5/6)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime import' (2/3)")
 
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime demux' (6/6)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime demux' (3/3)")
         vis_file_path = qiime_demux(reads_data, qza_file_path, dataset_id)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime demux' (6/6)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish 'qiime demux' (3/3)")
 
         pickle.dump(reads_data, open(os.path.join(reads_data.dir_path, "reads_data.pkl"), "wb"))
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating visualization\n")
@@ -347,16 +437,16 @@ def visualization_continue(continue_path, data_type,verbose_print, specific_loca
         return reads_data.dir_path
     else:
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (4/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start metaphlan extraction (1/2)")
         metaphlan_extraction(reads_data, dataset_id)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (4/5)")
+        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (1/2)")
 
         verbose_print("\n")
         verbose_print(
-            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (5/5)")
+            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (2/2)")
         metaphlan_txt_csv(reads_data, dataset_id)
         verbose_print(
-            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (5/5)")
+            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (2/2)")
 
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading.\n")
