@@ -21,8 +21,8 @@ pip install YMS
 
 ## Getting Started
 
-YaMAS provides an easy-to-use interface in the terminal.
-To download a project, use the one of the following templates:
+YaMAS provides an easy-to-use interface in the terminal. 
+To download a project, use the one of the following templates: 
 
 ### Get YaMAS ready
 ```
@@ -31,9 +31,9 @@ yamas --ready <operating_system_type>
 Arguments:
 - operating_system_type: Ubuntu/CentOS
 
-Pay attention to the output of the command.
-If the environment is ready, you will need to run one more command.
-If not, follow the output guidelines.
+Pay attention to the output of the command. 
+If the environment is ready, you will need to run one more command. 
+If not, follow the output guidelines. 
 
 ### 16S/18S dataset
 ```
@@ -55,8 +55,8 @@ Arguments:
 yamas --download PRJEB01234 --type Shotgun 
 ```
 
-### Continue to downloading project from 2 points
-continue downloading project **after** downloading SRA **before** converting to .fastq.
+### Continue downloading project from 2 points
+###### Continue downloading project **after** downloading SRA **before** converting to .fastq. 
 Use the following command:
 ```
 yamas --continue_from_fastq <project_path> <data_type>
@@ -65,7 +65,8 @@ Arguments:
 - project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
 - data_type: choose one of the following types: 16S / 18S / Shotgun
 
-Continue downloading project **after** downloading SRA **and** converting them to .fastq.
+
+###### Continue downloading project **after** downloading SRA **and** converting them to .fastq.
 Use the following command:
 ```
 yamas --continue_from <project_path> <data_type>
@@ -73,6 +74,7 @@ yamas --continue_from <project_path> <data_type>
 Arguments:
 - project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
 - data_type: choose one of the following types: 16S / 18S / Shotgun
+
 
 ### Other arguments and configurations
 1. config: You can add a configuration file in order to save the data in a different folder, and change other configurations. 
