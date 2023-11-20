@@ -21,8 +21,8 @@ pip install YMS
 
 ## Getting Started
 
-YaMAS provides an easy-to-use interface in the terminal. 
-To download a project, use the one of the following templates: 
+YaMAS provides an easy-to-use interface in the terminal.    
+To download a project, use the one of the following templates:    
 
 ### Get YaMAS ready
 ```
@@ -63,9 +63,8 @@ yamas --continue_from_fastq <project_path> <data_type>
 ```
 Arguments:
 - project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
-- data_type: choose one of the following types: 16S / 18S / Shotgun
-
-
+- data_type: choose one of the following types: 16S / 18S / Shotgun    
+    
 
 Continue downloading project **after** downloading SRA **and** converting them to .fastq.  
 Use the following command:
