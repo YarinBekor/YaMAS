@@ -55,7 +55,7 @@ Arguments:
 yamas --download PRJEB01234 --type Shotgun 
 ```
 
-### Continue downloading project from 2 points
+### Continue data downloading  
 * Continue downloading project **after** downloading SRA **before** converting to .fastq.    
 Use the following command:
 ```
