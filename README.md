@@ -4,7 +4,7 @@ YaMAS is a package designed to easily download DNA datasets from the NCBI SRA we
 
 ## Dependencies
 Before proceeding with the installation and execution of YaMAS, please ensure that you have a clean environment set up on your system, with all dependencies installed. To create one, follow the steps below:
-1. Get YaMAS ready. 
+1. Get YaMAS [ready](https://github.com/YarinBekor/YaMAS#get-yamas-ready). 
 2. Create a new [qiime2](https://docs.qiime2.org/2023.2/install/native/) environment using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html). Make sure you name it 'qiime2'.
 2. Download the [SRA-toolkit](https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit) and [Entrez](http://bioconda.github.io/recipes/entrez-direct/README.html) packages to the environment.
 3. Download the [metaphlan](https://github.com/biobakery/biobakery/wiki/metaphlan4) package. Make sure the database works properly before proceeding.
@@ -56,7 +56,7 @@ yamas --download PRJEB01234 --type Shotgun
 ```
 
 ### Continue data downloading  
-* Continue downloading project **after** downloading SRA **before** converting to .fastq.    
+Continue downloading project **after** downloading SRA **before** converting to .fastq.    
 Use the following command:
 ```
 yamas --continue_from_fastq <project_path> <data_type>
@@ -66,7 +66,7 @@ Arguments:
 - data_type: choose one of the following types: 16S / 18S / Shotgun    
     
 
-* Continue downloading project **after** downloading SRA **and** converting them to .fastq.  
+Continue downloading project **after** downloading SRA **and** converting them to .fastq.  
 Use the following command:
 ```
 yamas --continue_from <project_path> <data_type>
