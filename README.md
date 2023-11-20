@@ -56,7 +56,7 @@ yamas --download PRJEB01234 --type Shotgun
 ```
 
 ### Continue downloading project from 2 points
-Continue downloading project **after** downloading SRA **before** converting to .fastq.    
+* Continue downloading project **after** downloading SRA **before** converting to .fastq.    
 Use the following command:
 ```
 yamas --continue_from_fastq <project_path> <data_type>
@@ -66,7 +66,7 @@ Arguments:
 - data_type: choose one of the following types: 16S / 18S / Shotgun    
     
 
-Continue downloading project **after** downloading SRA **and** converting them to .fastq.  
+* Continue downloading project **after** downloading SRA **and** converting them to .fastq.  
 Use the following command:
 ```
 yamas --continue_from <project_path> <data_type>
