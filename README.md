@@ -31,9 +31,9 @@ yamas --ready <operating_system_type>
 Arguments:
 - operating_system_type: Ubuntu/CentOS
 
-Pay attention to the output of the command.  
-If the environment is ready, you will need to run one more command.  
-If not, follow the output guidelines.
+Pay attention to the output of the command.    
+If the environment is ready, you will need to run one more command.    
+If not, follow the output guidelines.    
 
 ### 16S/18S dataset
 ```
@@ -64,6 +64,7 @@ yamas --continue_from_fastq <project_path> <data_type>
 Arguments:
 - project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
 - data_type: choose one of the following types: 16S / 18S / Shotgun
+
 
 
 Continue downloading project **after** downloading SRA **and** converting them to .fastq.  
