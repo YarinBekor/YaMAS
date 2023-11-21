@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import os
 import pickle
+import re
 
 from .utilities import ReadsData, run_cmd, download_classifier_url, check_conda_qiime2
 
@@ -146,19 +147,6 @@ def export_otu(reads_data: ReadsData):
     ]
     run_cmd(command)
 
-    csv_output_file = os.path.join(reads_data.dir_path, "exports", "otu.csv")
-    convert_tsv_to_csv(output_file, csv_output_file)
-
-def convert_tsv_to_csv(tsv_output_file, csv_output_file):
-    with open(tsv_output_file,'r') as myfile:
-        with open(csv_output_file,'w') as csv_file:
-            for line in myfile:
-            # Replace every tab with comma
-                fileContent = re.sub("\t", ",", line)
-
-        # Writing into csv file
-                csv_file.write(fileContent)
-
 
 def export_taxonomy(reads_data: ReadsData, data_type, classifier_file_path):
     output_file = os.path.join(reads_data.dir_path, "exports", "tax.tsv")
@@ -178,8 +166,6 @@ def export_taxonomy(reads_data: ReadsData, data_type, classifier_file_path):
         ]
         run_cmd(command)
 
-        csv_output_file = os.path.join(reads_data.dir_path, "exports", "otu.csv")
-        convert_tsv_to_csv(output_file, csv_output_file)
 
 
 def export_phylogeny(reads_data: ReadsData):
@@ -208,6 +194,7 @@ def export_phylogeny(reads_data: ReadsData):
 def export(output_dir: str,data_type, trim, trunc, classifier_file_path: str, threads: int = 12):
     print("\n")
     print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
+    print(f"### Exporting {data_type} ###")
     print("Starting OTU & TAXONOMY files extraction")
 
     check_conda_qiime2()

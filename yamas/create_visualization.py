@@ -300,7 +300,7 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 6/6 \n")
 
 
-def visualization_continue_fastq(continue_path, data_type,verbose_print, specific_location):
+def visualization_continue_fastq(dataset_id,continue_path, data_type,verbose_print, specific_location):
 
     verbose_print("\n")
     verbose_print('Checking environment...', end=" ")
@@ -321,17 +321,14 @@ def visualization_continue_fastq(continue_path, data_type,verbose_print, specifi
     data_json["read_data_fwd"]= reads_data.fwd
     data_json["read_data_rev"]= reads_data.rev
 
-    json_file_path=f'{data_json["dir_path"]}/metadata.json'
+    json_file_path=f'{continue_path}/metadata.json'
 
     with open(json_file_path, "w") as json_file:
         json.dump(data_json, json_file)
 
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating metadata.json (2/5)")
 
-    with open(json_file_path, 'r') as json_file:
-        data_json = json.load(json_file)
-        dir_path = data_json.get("dir_path")
-        dataset_id = data_json.get("dataset_id")
+
 
     if data_type == '16S' or data_type == '18S':
 
@@ -381,7 +378,7 @@ def visualization_continue_fastq(continue_path, data_type,verbose_print, specifi
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 5/5 \n")
 
 
-def visualization_continue(continue_path, data_type,verbose_print, specific_location):
+def visualization_continue(dataset_id,continue_path, data_type,verbose_print, specific_location):
 
     verbose_print("\n")
     verbose_print('Checking environment...', end=" ")
@@ -392,11 +389,9 @@ def visualization_continue(continue_path, data_type,verbose_print, specific_loca
     try:
         with open(json_file_path, 'r') as json_file:
             data_json = json.load(json_file)
-            dir_path = data_json.get("dir_path")
             reads_data_fwd = data_json.get("reads_data_fwd")
             reads_data_rev = data_json.get("reads_data_rev")
-            dataset_id= data_json.get("dataset_id")
-            reads_data= ReadsData(dir_path,fwd=reads_data_fwd, rev=reads_data_rev)
+            reads_data= ReadsData(continue_path,fwd=reads_data_fwd, rev=reads_data_rev)
 
     except FileNotFoundError:
         print(f"Error: Metadata file not found at {json_file_path}. Please check the path and try again, or try --download command to start a new download of this data.")

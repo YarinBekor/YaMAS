@@ -3,6 +3,7 @@ import json
 import pkg_resources
 from .dataset_downloading import download
 from .dataset_downloading import continue_from
+from .dataset_downloading import continue_from_fastq
 from .export_data import export
 from .prerun_configs import set_environment
 
@@ -18,6 +19,7 @@ def main():
 
     parser.add_argument('--continue_from', nargs=2, metavar=('PATH', 'DATA_TYPE'), help='Continue processing from a specific path with a given data type')
 
+    parser.add_argument('--continue_from_fastq', nargs=2, metavar=('PATH', 'DATA_TYPE'), help='Continue downloading from a specific path with a given data type')
 
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
@@ -80,6 +82,18 @@ def main():
             for dataset_name in args.download:
                 download(dataset_name, data_type, args.verbose, specific_location)
 
+    if args.continue_from_fastq:
+        continue_path = args.continue_from_fastq[0]
+        data_type = args.continue_from_fastq[1]
+
+        print(f"{continue_path}, {data_type}")
+        if data_type == '16S' or data_type == '18S' or data_type == 'Shotgun':
+            print("Yes")
+            continue_from_fastq(continue_path, data_type, args.verbose, specific_location)
+        else:
+        # Ensure that a dataset type is specified when downloading datasets.
+            raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
+
     if args.continue_from:
 
         continue_path= args.continue_from[0]
@@ -92,7 +106,6 @@ def main():
         else:
             # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
-
 
 
 

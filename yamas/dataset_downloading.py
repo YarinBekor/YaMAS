@@ -27,17 +27,17 @@ def download(dataset_name, data_type, verbose, specific_location):
     visualization(acc_list_path, dataset_name, data_type, verbose_print, specific_location)
 
 
-def continue_from(continue_path, data_type, verbose, specific_location):
+def continue_from(dataset_id,continue_path, data_type, verbose, specific_location):
     verbose_print = print if verbose else lambda *a, **k: None
 
     verbose_print("\n")
     verbose_print(f"Continue downloading from {continue_path}.")
-    visualization_continue(continue_path, data_type, verbose_print, specific_location)
+    visualization_continue(dataset_id,continue_path, data_type, verbose_print, specific_location)
 
 
-def continue_from_fastq(continue_path, data_type, verbose, specific_location):
+def continue_from_fastq(dataset_id,continue_path, data_type, verbose, specific_location):
     verbose_print = print if verbose else lambda *a, **k: None
 
     verbose_print("\n")
     verbose_print(f"Continue downloading from {continue_path}.")
-    visualization_continue_fastq(continue_path, data_type, verbose_print, specific_location)
+    visualization_continue_fastq(dataset_id,continue_path, data_type, verbose_print, specific_location)
