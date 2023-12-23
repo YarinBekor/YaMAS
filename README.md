@@ -96,7 +96,7 @@ If not, follow the output guidelines.
 yamas --qiita <preprocessed_fastq_path> <metadata_path> <data_type>
 ```
 Arguments:
-All can be found in https://qiita.ucsd.edu/     
+All can be found in https://qiita.ucsd.edu/    
 - Where preprocessed fastq can be found?    
     Click the study description --> in the graph click on 'demultiplexed' --> scroll down and download 'preprocessed fastq' --> rename the file to be: "forward.fastq.gz"
 - Where metadata can be found?
