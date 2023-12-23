@@ -50,6 +50,7 @@ def qiime_dada2(reads_data: ReadsData, input_path: str,
                   "--p-chimera-method", "consensus",
                   "--o-representative-sequences", os.path.join(reads_data.dir_path, "qza", "dada2_rep-seqs.qza"),
                   "--o-denoising-stats", os.path.join(reads_data.dir_path, "qza", "dada2_denoising-stats.qza"),
+                  "--verbose"
               ]
     run_cmd(command)
 

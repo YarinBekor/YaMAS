@@ -6,6 +6,8 @@ from .dataset_downloading import continue_from
 from .dataset_downloading import continue_from_fastq
 from .export_data import export
 from .prerun_configs import set_environment
+from .dataset_downloading import download_qiita
+
 
 def main():
     # Initialize the argument parser with a description.
@@ -16,6 +18,8 @@ def main():
                         version='%(prog)s {version}'.format(version=pkg_resources.require("YMS")[0].version))
 
     parser.add_argument('--ready',nargs=1,choices=['Ubuntu', 'CentOS'], help='Type of Operating system')
+
+    parser.add_argument('--qiita', nargs=3, metavar=("PREPROCESSED FASTQ PATH", "METADATA PATH", "DATA_TYPE"), help= "All can be found in https://qiita.ucsd.edu/ \n Where preprocessed fastq can be found? \n click the study description --> in the graph click on demultiplexed --> scroll down and download 'preprocessed fastq' \n Where metadata can be found? \n   click the study description --> download 'Prep info' ")
 
     parser.add_argument('--continue_from', nargs=3, metavar=('DATASET_ID','PATH', 'DATA_TYPE'), help='Continue processing from a specific path with a given data type')
 
@@ -99,14 +103,26 @@ def main():
         dataset_id= args.continue_from[0]
         continue_path= args.continue_from[1]
         data_type = args.continue_from[2]
-        print(f"{continue_path}, {data_type}")
         if data_type=='16S' or data_type=='18S' or data_type=='Shotgun':
-            print("Yes")
             continue_from(dataset_id,continue_path,data_type, args.verbose, specific_location)
 
         else:
             # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
+
+    if args.qiita:
+        fastq_path= args.qiita[0]
+        metadata_path= args.qiita[1]
+        data_type= args.qiita[2]
+        if data_type=='16S' or data_type=='18S' or data_type=='Shotgun':
+            download_qiita(fastq_path,metadata_path,data_type, args.verbose)
+
+        else:
+            # Ensure that a dataset type is specified when downloading datasets.
+            raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
+
+
+
 
 
 

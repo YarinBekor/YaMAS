@@ -1,6 +1,8 @@
 from .create_visualization import visualization
 from .create_visualization import visualization_continue
 from .create_visualization import visualization_continue_fastq
+from .qiita_visualization import qiita_visualization
+
 import os
 
 
@@ -41,3 +43,12 @@ def continue_from_fastq(dataset_id,continue_path, data_type, verbose, specific_l
     verbose_print("\n")
     verbose_print(f"Continue downloading from {continue_path}.")
     visualization_continue_fastq(dataset_id,continue_path, data_type, verbose_print, specific_location)
+
+
+def download_qiita(fastq_path,metadata_path,data_type, verbose):
+    verbose_print = print if verbose else lambda *a, **k: None
+
+    verbose_print("\n")
+    verbose_print("download starts.")
+
+    qiita_visualization(fastq_path,metadata_path,data_type, verbose_print)

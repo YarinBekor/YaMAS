@@ -119,7 +119,8 @@ def qiime_import(reads_data: ReadsData):
         "--type", f"SampleData[{'PairedEndSequencesWithQuality' if paired else 'SequencesWithQuality'}]",
         "--input-path", f"{os.path.join(reads_data.dir_path, 'manifest.tsv')}",
         "--input-format", "PairedEndFastqManifestPhred33V2" if paired else "SingleEndFastqManifestPhred33V2",
-        "--output-path", qza_file_path
+        "--output-path", qza_file_path,
+
     ]
     run_cmd(command)
 
@@ -318,13 +319,13 @@ def visualization_continue_fastq(dataset_id,continue_path, data_type,verbose_pri
 
     # Store dir_path and reads_data in the data_json dictionary
     # data_json["type"]= data_type
-    data_json["read_data_fwd"]= reads_data.fwd
-    data_json["read_data_rev"]= reads_data.rev
-
-    json_file_path=f'{continue_path}/metadata.json'
-
-    with open(json_file_path, "w") as json_file:
-        json.dump(data_json, json_file)
+    # data_json["read_data_fwd"]= reads_data.fwd
+    # data_json["read_data_rev"]= reads_data.rev
+    #
+    # json_file_path=f'{continue_path}/metadata.json'
+    #
+    # with open(json_file_path, "w") as json_file:
+    #     json.dump(data_json, json_file)
 
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating metadata.json (2/5)")
 
