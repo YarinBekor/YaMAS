@@ -1,6 +1,6 @@
 # YaMAS (YOLO Microbiome Analysis System)
 
-YaMAS is a package designed to easily download DNA datasets from the NCBI SRA and ENA website. It is developed by the [YOLO lab team](https://yolo.math.biu.ac.il), and is designed to be simple, efficient, and easy to use for non-programmers.
+YaMAS is a package designed to easily download DNA datasets from the NCBI SRA,ENA and qiita and ENA website. It is developed by the [YOLO lab team](https://yolo.math.biu.ac.il), and is designed to be simple, efficient, and easy to use for non-programmers.
 
 ## Dependencies
 Before proceeding with the installation and execution of YaMAS, please ensure that you have a clean environment set up on your system, with all dependencies installed. To create one, follow the steps below:
