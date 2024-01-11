@@ -83,8 +83,6 @@ def qiime_import(dir_path,fastq_path):
         "--type", "MultiplexedSingleEndBarcodeInSequence",
         "--input-path", fastq_path,
         "--output-path", multiplexed_qza_file_path,
-        # TODO ADD HERE VERBOSE, its not an option here
-
 
     ]
     run_cmd(command)
