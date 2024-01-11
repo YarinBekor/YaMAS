@@ -78,7 +78,7 @@ Arguments:
 ## Getting Started- ENA
 
 YaMAS provides an easy-to-use interface in the terminal.    
-To download a project from **NCBI SRA**, use the one of the following templates:    
+To download a project from **ENA,qiita**, use the one of the following templates:    
 
 ### Get YaMAS ready
 ```
@@ -122,4 +122,4 @@ Arguments:
 
 
 ## Cite us
-If you are using our package, YaMAS for **any** purpose, please cite us:  https://link.springer.com/article/10.1186/s40168-023-01623-w
+If you are using our package, YaMAS for **any** purpose, please cite us; Shtossel, Oshrit, Sondra Turjeman, Alona Riumin, Michael R. Goldberg, Arnon Elizur, Yarin Bekor, Hadar Mor, Omry Koren, and Yoram Louzoun. "Recipient-independent, high-accuracy FMT-response prediction and optimization in mice and humans." Microbiome 11, no. 1 (2023): 181. https://link.springer.com/article/10.1186/s40168-023-01623-w
