@@ -121,5 +121,5 @@ Arguments:
 3. Listing more than one project will download them one by one into different folders.
 
 
-
-If you are using our package for **any** purpose, please cite us:  https://link.springer.com/article/10.1186/s40168-023-01623-w
+## Cite us
+If you are using our package, YaMAS for **any** purpose, please cite us:  https://link.springer.com/article/10.1186/s40168-023-01623-w
