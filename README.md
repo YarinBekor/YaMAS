@@ -119,3 +119,7 @@ Arguments:
 1. config: You can add a configuration file in order to save the data in a different folder, and change other configurations. 
 2. verbose: To get more information about a downloading process, use the verbose option (this is highly recommended).
 3. Listing more than one project will download them one by one into different folders.
+
+
+
+## If you are using our package for **any** purpose, please cite us:  https://link.springer.com/article/10.1186/s40168-023-01623-w
