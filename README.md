@@ -19,10 +19,11 @@ To install YaMAS, you can use pip:
 pip install YMS
 ```
 
-## Getting Started- NCBI SRA
+## Getting Started
 
-YaMAS provides an easy-to-use interface in the terminal.    
-To download a project from **NCBI SRA**, use the one of the following templates:    
+YaMAS provides an easy-to-use interface in the terminal.
+First, get the dependencies ready.
+The, follow the steps below.
 
 ### Get YaMAS ready
 ```
@@ -33,83 +34,64 @@ Arguments:
 
 Pay attention to the output of the command.    
 If the environment is ready, you will need to run one more command.    
-If not, follow the output guidelines.    
+If not, follow the output guidelines.   
 
-### 16S/18S dataset
+To download a project from **NCBI SRA** or from **ENA, qiita**, use the one of the following templates:    
+
+# <ins>Downloading a project
+
+## Download from NCBI SRA
 ```
-yamas --download PRJEB01234 --type 16S/18S 
-```
-To export an OTU (Operational Taxonomic Unit), taxonomy, and phylogeny tree for a single project, use the following command:
-```
-yamas --export <project_path> <data_type> <start> <end> <classifier_file> <threads>
+yamas --download <dataset_id> --type <data_type>
 ```
 Arguments:
-- project_path: path to the project directory (created by YaMAS in the previous step).
-- data_type: choose one of the following types: 16S / 18S 
-- classifier_file: path to the trained classifier file. 
-- start & end: choose graph edges. 
-- threads: specifies the number of threads to use for parallel processing, which can speed up the export process (default is 12).
-
-### Shotgun dataset
-```
-yamas --download PRJEB01234 --type Shotgun 
-```
+- dataset_id: the dataset id from the NCBI SRA website. For example: PRJEB01234
+- data_type: choose one of the following types: 16S / 18S / Shotgun
 
 ### Continue data downloading  
-Continue downloading project **after** downloading SRA **before** converting to .fastq.    
+1. Continue downloading project **after** downloading SRA **before** converting to .fastq.    
 Use the following command:
 ```
 yamas --continue_from_fastq <dataset_id> <project_path> <data_type>
 ```
 Arguments:
+- dataset_id: the dataset id from the NCBI SRA website. For example: PRJEB01234
 - project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
 - data_type: choose one of the following types: 16S / 18S / Shotgun    
     
 
-Continue downloading project **after** downloading SRA **and** converting them to .fastq.  
+2. Continue downloading project **after** downloading SRA and **after** converting them to .fastq.  
 Use the following command:
 ```
 yamas --continue_from <dataset_id> <project_path> <data_type>
 ```
 Arguments:
+- dataset_id: the dataset id from the NCBI SRA website. For example: PRJEB01234
 - project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
 - data_type: choose one of the following types: 16S / 18S / Shotgun
 
-## Getting Started- ENA
-
-YaMAS provides an easy-to-use interface in the terminal.    
-To download a project from **ENA,qiita**, use the one of the following templates:    
-
-### Get YaMAS ready
-```
-yamas --ready <operating_system_type> 
-```
-Arguments:
-- operating_system_type: Ubuntu/CentOS
-
-Pay attention to the output of the command.    
-If the environment is ready, you will need to run one more command.    
-If not, follow the output guidelines.    
-
-### 16S/18S dataset
+## Download from ENA
 ```
 yamas --qiita <preprocessed_fastq_path> <metadata_path> <data_type>
 ```
 Arguments:
-All can be found in https://qiita.ucsd.edu/    
+All can be found in https://qiita.ucsd.edu/   
+- data_type : choose one of the following types: 16S / 18S 
 - Where preprocessed fastq can be found?    
     Click the study description --> in the graph click on 'demultiplexed' --> scroll down and download 'preprocessed fastq' --> rename the file to be: "forward.fastq.gz"
 - Where metadata can be found?
     Click the study description --> download 'Prep info' --> rename the file to be: "metadata.tsv"
 - The new data will be created in the folder of the fastq and metadata, so it is recommended to be organized.
 
-To export an OTU (Operational Taxonomic Unit), taxonomy, and phylogeny tree for a single project, use the following command:
+
+# <ins>Exporting a project
+To export an OTU (Operational Taxonomic Unit), taxonomy, phylogeny tree and a tree.nwk for a single project, use the following command:
 ```
 yamas --export <project_path> <data_type> <start> <end> <classifier_file> <threads>
 ```
 Arguments:
 - project_path: path to the project directory (created by YaMAS in the previous step).
-- data_type: choose one of the following types: 16S / 18S 
+- data_type: choose one of the following types: 16S / 18S / Shotgun
 - classifier_file: path to the trained classifier file. 
 - start & end: choose graph edges. 
 - threads: specifies the number of threads to use for parallel processing, which can speed up the export process (default is 12).
@@ -122,4 +104,4 @@ Arguments:
 
 
 ## Cite us
-If you are using our package, YaMAS for **any** purpose, please cite us; Shtossel, Oshrit, Sondra Turjeman, Alona Riumin, Michael R. Goldberg, Arnon Elizur, Yarin Bekor, Hadar Mor, Omry Koren, and Yoram Louzoun. "Recipient-independent, high-accuracy FMT-response prediction and optimization in mice and humans." Microbiome 11, no. 1 (2023): 181. https://link.springer.com/article/10.1186/s40168-023-01623-w
+If you are using our package, YaMAS for **any** purpose, please cite us; Shtossel Oshrit, Sondra Turjeman, Alona Riumin, Michael R. Goldberg, Arnon Elizur, Yarin Bekor, Hadar Mor, Omry Koren, and Yoram Louzoun. "Recipient-independent, high-accuracy FMT-response prediction and optimization in mice and humans." Microbiome 11, no. 1 (2023): 181. https://link.springer.com/article/10.1186/s40168-023-01623-w
