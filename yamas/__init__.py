@@ -93,7 +93,6 @@ def main():
 
         print(f"{continue_path}, {data_type}")
         if data_type == '16S' or data_type == '18S' or data_type == 'Shotgun':
-            print("Yes")
             continue_from_fastq(dataset_id,continue_path, data_type, args.verbose, specific_location)
         else:
         # Ensure that a dataset type is specified when downloading datasets.

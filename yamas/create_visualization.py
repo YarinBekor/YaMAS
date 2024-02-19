@@ -9,7 +9,6 @@ from metaphlan.utils.merge_metaphlan_tables import merge
 from .utilities import run_cmd, ReadsData, check_conda_qiime2
 import json
 
-
 CONDA_PREFIX = os.environ.get("CONDA_PREFIX", None)
 
 
@@ -26,6 +25,7 @@ def check_input(acc_list: str):
 
 
 import os
+
 
 def create_dir(dir_name, specific_location):
     dir_path = os.path.join(os.path.abspath(specific_location), dir_name)
@@ -59,26 +59,19 @@ def download_data_from_sra(dir_path: str, acc_list: str = ""):
              "--max-size", "u"])
 
 
-def sra_to_fastq(dir_path: str,data_type):
+def sra_to_fastq(dir_path: str, data_type):
     print(f"converting files from .sra to .fastq.")
     for sra_dir in tqdm(os.listdir(os.path.join(dir_path, "sra")), desc="converted files"):
         sra_file = os.listdir(os.path.join(dir_path, "sra", sra_dir))[0]
         sra_path = os.path.join(dir_path, "sra", sra_dir, sra_file)
         fastq_path = os.path.join(dir_path, "fastq")
         run_cmd(["fasterq-dump", "--split-files", sra_path, "-O", fastq_path])
-    if data_type == '16S':
-        # check if reads include fwd and rev
-        fastqs = sorted(os.listdir(os.path.join(dir_path, "fastq")))[:3]
-        if len(set([fastq.split("_")[0] for fastq in fastqs])) == 1:
-            return ReadsData(dir_path, fwd=True, rev=True)
-        return ReadsData(dir_path, fwd=True, rev=False)
-    else:
-        # check if reads include fwd and rev
-        fastqs = os.listdir(os.path.join(dir_path, "fastq"))
-        for fastq in fastqs:
-            if '_' in fastq:
-                return ReadsData(dir_path, fwd=True, rev=True)
-        return ReadsData(dir_path, fwd=True, rev=False)
+
+    # check if reads include fwd and rev
+    fastqs = sorted(os.listdir(os.path.join(dir_path, "fastq")))[:3]
+    if len(set([fastq.split("_")[0] for fastq in fastqs])) == 2:
+        return ReadsData(dir_path, fwd=True, rev=True)
+    return ReadsData(dir_path, fwd=True, rev=False)
 
 
 def create_manifest(reads_data: ReadsData):
@@ -100,7 +93,8 @@ def create_manifest(reads_data: ReadsData):
                         if os.path.isfile(os.path.join(fastq_path, f)) and "_1" in f])
     files_rev = sorted([os.path.join(fastq_path, f) for f in os.listdir(fastq_path)
                         if os.path.isfile(os.path.join(fastq_path, f)) and "_2" in f])
-    names = sorted([f.split('.')[0] for f in os.path.join(reads_data.dir_path, "sra")])
+    names = sorted(
+        [os.path.splitext(os.path.basename(f))[0] for f in os.listdir(os.path.join(reads_data.dir_path, "sra"))])
 
     with open(os.path.join(reads_data.dir_path, 'manifest.tsv'), 'w') as manifest:
         tsv_writer = csv.writer(manifest, delimiter='\t')
@@ -112,6 +106,7 @@ def create_manifest(reads_data: ReadsData):
 def qiime_import(reads_data: ReadsData):
     qza_path = os.path.join(reads_data.dir_path, "qza")
     paired = reads_data.rev and reads_data.fwd
+    if paired: print("Paired")
 
     qza_file_path = os.path.join(qza_path, f"demux-{'paired' if paired else 'single'}-end.qza")
     command = [
@@ -138,6 +133,7 @@ def qiime_demux(reads_data: ReadsData, qza_file_path: str, dataset_id):
     run_cmd(command)
     return vis_file_path
 
+
 def metaphlan_extraction(reads_data, dataset_id):
     paired = reads_data.rev and reads_data.fwd
     fastq_path = os.path.join(reads_data.dir_path, "fastq")
@@ -149,11 +145,11 @@ def metaphlan_extraction(reads_data, dataset_id):
     args = []
     if paired:
         print("paired")
-        for i in tqdm(range(0,len(fastq_files),2)):
+        for i in tqdm(range(0, len(fastq_files), 2)):
             fastq_name = fastq_files[i].split('_')[0]
             fastq_1 = os.path.join(fastq_path, fastq_files[i])
-            fastq_2 = os.path.join(fastq_path, fastq_files[i+1])
-            output = os.path.join(fastq_path,f"{fastq_name}.bowtie2.bz2")
+            fastq_2 = os.path.join(fastq_path, fastq_files[i + 1])
+            output = os.path.join(fastq_path, f"{fastq_name}.bowtie2.bz2")
             command = [f"metaphlan {fastq_1},{fastq_2} --input_type fastq --bowtie2out {output} --nproc 24"]
             run_cmd(command)
             final_output_file = os.path.join(os.path.join(reads_data.dir_path, 'qza'), f'{fastq_name}_profile.txt')
@@ -164,20 +160,21 @@ def metaphlan_extraction(reads_data, dataset_id):
         print("not paired")
         for fastq in tqdm(fastq_files):
             output = os.path.join(os.path.join(reads_data.dir_path, 'qza'), f'{fastq}_profile.txt')
-            fastq = os.path.join(fastq_path,fastq)
+            fastq = os.path.join(fastq_path, fastq)
             command = [f"metaphlan {fastq} --input_type fastq --nproc 24 > {output}"]
             run_cmd(command)
             args.append(output)
     merge(args, open(final_output_path, 'w'), gtdb=False)
 
+
 def metaphlan_txt_csv(reads_data, dataset_id):
     export_path = os.path.join(reads_data.dir_path, "export")
-    input_file = os.path.join(export_path,f"{dataset_id}_final.txt")
-    output_file = os.path.join(export_path,f"{dataset_id}_final_table.csv")
+    input_file = os.path.join(export_path, f"{dataset_id}_final.txt")
+    output_file = os.path.join(export_path, f"{dataset_id}_final_table.csv")
     with open(input_file, 'r') as txt_file:
         lines = txt_file.readlines()
 
-    # Extract data from the text file
+    # Extract data  the text file
     headers = lines[0].strip().split('\t')
     data = [line.strip().split('\t') for line in lines[1:]]
 
@@ -196,12 +193,12 @@ def metaphlan_txt_csv(reads_data, dataset_id):
 
     print(f"CSV file '{output_file}' has been created.")
 
+
 # This function is the main function to download the project. It Hnadles all the download flow for 16S and Shotgun.
 def visualization(acc_list, dataset_id, data_type, verbose_print, specific_location):
-
     verbose_print("\n")
     verbose_print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
-    data_json={}
+    data_json = {}
     # Decide directory name
     dir_name = f"{dataset_id}-{datetime.datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}"
 
@@ -216,10 +213,9 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
     verbose_print("\n")
     verbose_print("Creating a new directory for this dataset import:'", dir_name, "'")
     # Path to working dir:
-    dir_path = create_dir(dir_name,specific_location)
+    dir_path = create_dir(dir_name, specific_location)
     verbose_print("Find ALL NEW data in:", dir_path)
-    json_file_path=f"{dir_path}/metadata.json"
-
+    json_file_path = f"{dir_path}/metadata.json"
 
     # This two stages are for all data type. Prefetching the data from the relevant database, and converting it to fatsqs.
     verbose_print("\n")
@@ -232,26 +228,22 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         json.dump(data_json, json_file)
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish prefetch (1/6)")
 
-
     verbose_print("\n")
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start conversion (2/6)")
-    reads_data = sra_to_fastq(dir_path,data_type)
+    reads_data = sra_to_fastq(dir_path, data_type)
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (2/6)")
-
 
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating metadata.json (3/6)")
 
     # Store dir_path and reads_data in the data_json dictionary
-    data_json["type"]= data_type
-    data_json["read_data_fwd"]= reads_data.fwd
-    data_json["read_data_rev"]= reads_data.rev
-
+    data_json["type"] = data_type
+    data_json["read_data_fwd"] = reads_data.fwd
+    data_json["read_data_rev"] = reads_data.rev
 
     with open(json_file_path, "w") as json_file:
         json.dump(data_json, json_file)
 
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating metadata.json (3/6)")
-
 
     if data_type == '16S' or data_type == '18S':
 
@@ -293,43 +285,31 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (4/6)")
 
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (5/6)")
+        verbose_print(
+            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (5/6)")
         metaphlan_txt_csv(reads_data, dataset_id)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (5/6)")
+        verbose_print(
+            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (5/6)")
 
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 6/6 \n")
 
 
-def visualization_continue_fastq(dataset_id,continue_path, data_type,verbose_print, specific_location):
-
+def visualization_continue_fastq(dataset_id, continue_path, data_type, verbose_print, specific_location):
     verbose_print("\n")
     verbose_print('Checking environment...', end=" ")
     check_conda_qiime2()
     verbose_print('Done.')
 
     verbose_print("\n")
-    data_json={}
+    data_json = {}
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start conversion (1/5)")
-    reads_data = sra_to_fastq(continue_path,data_type)
+    reads_data = sra_to_fastq(continue_path, data_type)
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (1/5)")
-
 
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating metadata.json (2/5)")
 
-    # Store dir_path and reads_data in the data_json dictionary
-    # data_json["type"]= data_type
-    # data_json["read_data_fwd"]= reads_data.fwd
-    # data_json["read_data_rev"]= reads_data.rev
-    #
-    # json_file_path=f'{continue_path}/metadata.json'
-    #
-    # with open(json_file_path, "w") as json_file:
-    #     json.dump(data_json, json_file)
-
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating metadata.json (2/5)")
-
-
 
     if data_type == '16S' or data_type == '18S':
 
@@ -371,31 +351,36 @@ def visualization_continue_fastq(dataset_id,continue_path, data_type,verbose_pri
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish metaphlan extraction (3/5)")
 
         verbose_print("\n")
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (4/5)")
+        verbose_print(
+            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start converting resualts to CSV (4/5)")
         metaphlan_txt_csv(reads_data, dataset_id)
-        verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (4/5)")
+        verbose_print(
+            f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (4/5)")
 
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 5/5 \n")
 
 
-def visualization_continue(dataset_id,continue_path, data_type,verbose_print, specific_location):
-
+def visualization_continue(dataset_id, continue_path, data_type, verbose_print, specific_location):
     verbose_print("\n")
     verbose_print('Checking environment...', end=" ")
     check_conda_qiime2()
     verbose_print('Done.')
 
-    json_file_path= f"{continue_path}/metadata.json"
+    json_file_path = f"{continue_path}/metadata.json"
     try:
         with open(json_file_path, 'r') as json_file:
             data_json = json.load(json_file)
-            reads_data_fwd = data_json.get("reads_data_fwd")
-            reads_data_rev = data_json.get("reads_data_rev")
-            reads_data= ReadsData(continue_path,fwd=reads_data_fwd, rev=reads_data_rev)
+            reads_data_fwd = data_json.get("read_data_fwd")
+            reads_data_rev = data_json.get("read_data_rev")
+            if reads_data_fwd == "true":
+                print("yes")
+            print(reads_data_fwd, reads_data_rev)
+            reads_data = ReadsData(continue_path, fwd=reads_data_fwd, rev=reads_data_rev)
 
     except FileNotFoundError:
-        print(f"Error: Metadata file not found at {json_file_path}. Please check the path and try again, or try --download command to start a new download of this data.")
+        print(
+            f"Error: Metadata file not found at {json_file_path}. Please check the path and try again, or try --download command to start a new download of this data.")
         return
 
     if data_type == '16S' or data_type == '18S':
