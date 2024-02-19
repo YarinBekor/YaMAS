@@ -21,11 +21,11 @@ pip install YMS
 
 ## Getting Started
 
-YaMAS provides an easy-to-use interface in the terminal.
-First, get the dependencies ready.
-The, follow the steps below.
+YaMAS provides an easy-to-use interface in the terminal.   
+First, get the dependencies ready.   
+Then, follow the steps below.
 
-### Get YaMAS ready
+#### Get YaMAS ready
 ```
 yamas --ready <operating_system_type> 
 ```
