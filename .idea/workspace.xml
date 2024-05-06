@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bb51b83d-2765-42e0-a9cd-aedc43cf87af" name="Changes" comment="fixed README.md &amp; setup.py" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="2anepSUeCU7SH3d4LJZSRSTDwcX" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-50da183f06c8-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.13135.95" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bb51b83d-2765-42e0-a9cd-aedc43cf87af" name="Changes" comment="" />
+      <created>1704958952506</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1704958952506</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Changing license.txt&#10;and adding information to cite us in README.md">
+      <option name="closed" value="true" />
+      <created>1704959349891</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1704959349891</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Changing license.txt&#10;and adding information to cite us in README.md">
+      <option name="closed" value="true" />
+      <created>1704959414043</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1704959414044</updated>
+    </task>
+    <task id="LOCAL-00003" summary="fixed README.md">
+      <option name="closed" value="true" />
+      <created>1704959480259</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1704959480259</updated>
+    </task>
+    <task id="LOCAL-00004" summary="fixed README.md">
+      <option name="closed" value="true" />
+      <created>1704959537344</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1704959537344</updated>
+    </task>
+    <task id="LOCAL-00005" summary="fixed README.md">
+      <option name="closed" value="true" />
+      <created>1704959676956</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1704959676956</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fixed README.md &amp; setup.py">
+      <option name="closed" value="true" />
+      <created>1704960078781</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1704960078781</updated>
+    </task>
+    <task id="LOCAL-00007" summary="fixed README.md &amp; setup.py">
+      <option name="closed" value="true" />
+      <created>1704960527468</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1704960527468</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fixed README.md &amp; setup.py">
+      <option name="closed" value="true" />
+      <created>1704960544521</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1704960544521</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Changing license.txt&#10;and adding information to cite us in README.md" />
+    <MESSAGE value="fixed README.md" />
+    <MESSAGE value="fixed README.md &amp; setup.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed README.md &amp; setup.py" />
+  </component>
+</project>
