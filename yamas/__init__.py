@@ -7,6 +7,7 @@ from .dataset_downloading import continue_from_fastq
 from .export_data import export
 from .prerun_configs import set_environment
 from .dataset_downloading import download_qiita
+from .dataset_downloading import download_fastq
 
 
 def main():
@@ -24,6 +25,8 @@ def main():
     parser.add_argument('--continue_from', nargs=3, metavar=('DATASET_ID','PATH', 'DATA_TYPE'), help='Continue processing from a specific path with a given data type')
 
     parser.add_argument('--continue_from_fastq', nargs=3, metavar=('DATASET_ID','PATH', 'DATA_TYPE'), help='Continue downloading from a specific path with a given data type')
+
+    parser.add_argument('--fastq', nargs=4, metavar=("PREPROCESSED FASTQ PATH", "PREPROCESSED FASTQ PATH","METADATA PATH", "DATA_TYPE"), help= "All can be found in https://qiita.ucsd.edu/ \n Where preprocessed fastq can be found? \n click the study description --> in the graph click on demultiplexed --> scroll down and download 'preprocessed fastq' \n Where metadata can be found? \n   click the study description --> download 'Prep info' ")
 
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
@@ -109,12 +112,13 @@ def main():
             # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
 
-    if args.qiita:
-        fastq_path= args.qiita[0]
-        metadata_path= args.qiita[1]
-        data_type= args.qiita[2]
+    if args.fastq:
+        fastq_path= args.fastq[0]
+        barcode_path= args.fastq[1]
+        metadata_path= args.qiita[2]
+        data_type= args.qiita[3]
         if data_type=='16S' or data_type=='18S' or data_type=='Shotgun':
-            download_qiita(fastq_path,metadata_path,data_type, args.verbose)
+            download_fastq(fastq_path,barcode_path,metadata_path,data_type, args.verbose)
 
         else:
             # Ensure that a dataset type is specified when downloading datasets.

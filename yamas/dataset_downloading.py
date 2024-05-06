@@ -2,6 +2,7 @@ from .create_visualization import visualization
 from .create_visualization import visualization_continue
 from .create_visualization import visualization_continue_fastq
 from .qiita_visualization import qiita_visualization
+from .fastq_visualization import fastq_visualization
 
 import os
 
@@ -52,3 +53,12 @@ def download_qiita(fastq_path,metadata_path,data_type, verbose):
     verbose_print("download starts.")
 
     qiita_visualization(fastq_path,metadata_path,data_type, verbose_print)
+
+
+def download_fastq(fastq_path,barcode_path,metadata_path,data_type, verbose):
+    verbose_print = print if verbose else lambda *a, **k: None
+
+    verbose_print("\n")
+    verbose_print("download starts.")
+
+    fastq_visualization(fastq_path,barcode_path, metadata_path, data_type, verbose_print)
