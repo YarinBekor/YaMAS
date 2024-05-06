@@ -9,7 +9,6 @@ class ReadsData:
     fwd: bool = True
     rev: bool = False
 
-
 def run_cmd(command: list):
     os.system(" ".join(command))
 
