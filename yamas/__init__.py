@@ -26,7 +26,7 @@ def main():
 
     parser.add_argument('--continue_from_fastq', nargs=3, metavar=('DATASET_ID','PATH', 'DATA_TYPE'), help='Continue downloading from a specific path with a given data type')
 
-    parser.add_argument('--fastq', nargs=4, metavar=("PREPROCESSED FASTQ PATH", "PREPROCESSED FASTQ PATH","METADATA PATH", "DATA_TYPE"), help= "All can be found in https://qiita.ucsd.edu/ \n Where preprocessed fastq can be found? \n click the study description --> in the graph click on demultiplexed --> scroll down and download 'preprocessed fastq' \n Where metadata can be found? \n   click the study description --> download 'Prep info' ")
+    parser.add_argument('--fastq', nargs=4, metavar=("PREPROCESSED FASTQ PATH", "Barcodes.fastq.gz PATH","METADATA PATH", "DATA_TYPE"), help= "PREPROCESSED FASTQ PATH: the path of sequences.fastq.gz file \n Barcode.fastq.gz PATH: the path of barcodes.fastq.gz file \n METADATA PATH: the path of metadata file \n DATA_TYPE: 16S/18S/Shotgun")
 
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
@@ -68,8 +68,8 @@ def main():
             # Extract export parameters from the command line arguments.
             origin_dir = args.export[0]
             data_type= args.export[1]
-            trim = int(args.export[2])
-            trunc = int(args.export[3])
+            trim = args.export[2]
+            trunc = args.export[3]
             classifier_file = args.export[4]
             threads = args.export[5]
 

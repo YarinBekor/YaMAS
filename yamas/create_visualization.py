@@ -8,6 +8,7 @@ from tqdm import tqdm
 from metaphlan.utils.merge_metaphlan_tables import merge
 from .utilities import run_cmd, ReadsData, check_conda_qiime2
 import json
+import shutil
 
 CONDA_PREFIX = os.environ.get("CONDA_PREFIX", None)
 
@@ -252,6 +253,9 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         create_manifest(reads_data)
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (4/6)")
 
+        
+        shutil.rmtree(dir_path+"/sra")
+        
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (5/6)")
         qza_file_path = qiime_import(reads_data)
@@ -317,7 +321,7 @@ def visualization_continue_fastq(dataset_id, continue_path, data_type, verbose_p
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (3/5)")
         create_manifest(reads_data)
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (3/5)")
-
+        shutil.rmtree(continue_path+'/sra')
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (4/5)")
         qza_file_path = qiime_import(reads_data)
@@ -389,7 +393,7 @@ def visualization_continue(dataset_id, continue_path, data_type, verbose_print, 
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating manifest (1/3)")
         create_manifest(reads_data)
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (1/3)")
-
+        shutil.rmtree(continue_path+'/sra')		
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (2/3)")
         qza_file_path = qiime_import(reads_data)

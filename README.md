@@ -83,6 +83,15 @@ All can be found in https://qiita.ucsd.edu/
     Click the study description --> download 'Prep info' --> rename the file to be: "metadata.tsv"
 - The new data will be created in the folder of the fastq and metadata, so it is recommended to be organized.
 
+## Download using fastq files
+```
+yamas --fastq <preprocessed_fastq_path> <barcode_path> <metadata_path> <data_type>
+```
+Arguments:
+- preprocessed_fastq_path: path to the preprocessed fastq file. rename the file to be: "preprocessed_fastq_path"
+- barcode_path: path to the barcode file. rename the file to be: "barcodes.fastq.gz"
+- metadata_path: path to the metadata file. rename the file to be: "metadata.tsv". The metadata should contains column names: "barcode".
+- data_type: choose one of the following types: 16S / 18S / Shotgun
 
 # <ins>Exporting a project
 To export an OTU (Operational Taxonomic Unit), taxonomy, phylogeny tree and a tree.nwk for a single project, use the following command:
