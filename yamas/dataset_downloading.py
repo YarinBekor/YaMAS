@@ -20,13 +20,17 @@ def get_acc_list(bio_project_name, verbose_print):
     return f"{bio_project_name}_acc_info.txt"
 
 
-def download(dataset_name, data_type, verbose, specific_location):
+def download(dataset_name, data_type, acc_list, verbose, specific_location):
     verbose_print = print if verbose else lambda *a, **k: None
 
     verbose_print("\n")
     verbose_print("download starts.")
 
-    acc_list_path = get_acc_list(dataset_name, verbose_print)
+    # checking if the acc_list is provided
+    acc_list_path= acc_list if acc_list else None
+    acc_list_path = f"{acc_list_path}"
+    if acc_list_path is None:
+        acc_list_path = get_acc_list(dataset_name, verbose_print)
     visualization(acc_list_path, dataset_name, data_type, verbose_print, specific_location)
 
 

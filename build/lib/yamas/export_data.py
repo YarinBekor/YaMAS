@@ -45,9 +45,9 @@ def qiime_dada2(reads_data: ReadsData, input_path: str,
                 left: int | tuple[int, int], right: int | tuple[int, int], threads: int = 12):
     paired = reads_data.fwd and reads_data.rev
 
-    trim_range = ["--p-trim-left-f", str(left[0]), "--p-trim-left-r", str(left[1])] if paired \
+    trim_range = ["--p-trim-left-f", str(left.split(',')[0]), "--p-trim-left-r", str(left.split(',')[1])] if paired \
         else ["--p-trim-left", str(left)]
-    trunc_range = ["--p-trunc-len-f", str(right[0]), "--p-trunc-len-r", str(right[1])] if paired \
+    trunc_range = ["--p-trunc-len-f", str(right.split(',')[0]), "--p-trunc-len-r", str(right.split(',')[1])] if paired \
         else ["--p-trunc-len", str(right)]
 
     command = [
