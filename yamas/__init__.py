@@ -44,6 +44,8 @@ def main():
     # Add a flag for enabling verbose mode.
     parser.add_argument('--verbose', action='store_true', help='Enable verbose mode')
     parser.add_argument('--acc_list', nargs=1, help='Path to the accession list file, formatted as a text file with one accession per line.')
+    parser.add_argument('--as_single', action='store_true', help='Process the data as single-end reads, instead of paired-end reads.')
+
 
     # Parse the command line arguments.
     args = parser.parse_args()
@@ -87,9 +89,10 @@ def main():
         else:
             # Extract the dataset type and iterate over the specified dataset names for downloading.
             data_type = args.type[0]
-            acc_list= args.acc_list[0]
+
+            acc_list= args.acc_list[0] if args.acc_list else None
             for dataset_name in args.download:
-                download(dataset_name, data_type, acc_list,args.verbose, specific_location)
+                download(dataset_name, data_type, acc_list,args.verbose, specific_location,args.as_single)
 
     if args.continue_from_fastq:
         dataset_id= args.continue_from_fastq[0]

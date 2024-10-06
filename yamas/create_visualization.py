@@ -60,7 +60,7 @@ def download_data_from_sra(dir_path: str, acc_list: str = ""):
              "--max-size", "u"])
 
 
-def sra_to_fastq(dir_path: str, data_type):
+def sra_to_fastq(dir_path: str, as_single):
     print(f"converting files from .sra to .fastq.")
     for sra_dir in tqdm(os.listdir(os.path.join(dir_path, "sra")), desc="converted files"):
         sra_file = os.listdir(os.path.join(dir_path, "sra", sra_dir))[0]
@@ -71,7 +71,15 @@ def sra_to_fastq(dir_path: str, data_type):
     # check if reads include fwd and rev
     fastqs = sorted(os.listdir(os.path.join(dir_path, "fastq")))[:3]
     if len(set([fastq.split("_")[0] for fastq in fastqs])) == 2:
-        return ReadsData(dir_path, fwd=True, rev=True)
+        if as_single:
+            delete__2_files = f"rm {os.path.join(dir_path, '*_2.fastq')}"
+            run_cmd([delete__2_files])
+            print("Single reads- only forward reads are kept, reverse reads are deleted.")
+            return ReadsData(dir_path, fwd=True, rev=False)
+        else:
+            return ReadsData(dir_path, fwd=True, rev=True)
+
+
     return ReadsData(dir_path, fwd=True, rev=False)
 
 
@@ -102,12 +110,15 @@ def create_manifest(reads_data: ReadsData):
         tsv_writer.writerow(["SampleID", "forward-absolute-filepath", "reverse-absolute-filepath"])
         for n, ff, fr in zip(*(names, files_fwd, files_rev)):
             tsv_writer.writerow([n, ff, fr])
+    # remove sra directory
+    shutil.rmtree(ReadsData.dir_path + "/sra")
+
 
 
 def qiime_import(reads_data: ReadsData):
     qza_path = os.path.join(reads_data.dir_path, "qza")
     paired = reads_data.rev and reads_data.fwd
-    if paired: print("Paired")
+    if paired: print("Paired reads")
 
     qza_file_path = os.path.join(qza_path, f"demux-{'paired' if paired else 'single'}-end.qza")
     command = [
@@ -134,6 +145,9 @@ def qiime_demux(reads_data: ReadsData, qza_file_path: str, dataset_id):
     run_cmd(command)
     return vis_file_path
 
+def get_files_in_directory(directory, extension=""):
+    return [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith(extension)]
+
 
 def metaphlan_extraction(reads_data, dataset_id):
     paired = reads_data.rev and reads_data.fwd
@@ -143,7 +157,7 @@ def metaphlan_extraction(reads_data, dataset_id):
     final_output_path = os.path.join(export_path, f'{dataset_id}_final.txt')
     run_cmd([f"touch {final_output_path}"])
     fastq_files = [a for a in os.listdir(fastq_path) if a.split(".")[-1] == "fastq"]
-    args = []
+
     if paired:
         print("paired")
         for i in tqdm(range(0, len(fastq_files), 2)):
@@ -153,10 +167,13 @@ def metaphlan_extraction(reads_data, dataset_id):
             output = os.path.join(fastq_path, f"{fastq_name}.bowtie2.bz2")
             command = [f"metaphlan {fastq_1},{fastq_2} --input_type fastq --bowtie2out {output} --nproc 24"]
             run_cmd(command)
+
+
             final_output_file = os.path.join(os.path.join(reads_data.dir_path, 'qza'), f'{fastq_name}_profile.txt')
             command = [f"metaphlan {output} --input_type bowtie2out --nproc 24 > {final_output_file}"]
             run_cmd(command)
-            args.append(final_output_file)
+            # after converting the fastq to bowtie and bowtie to profile we can delete these files
+            run_cmd([f"rm {fastq_1} {fastq_2} {output}"])
     else:
         print("not paired")
         for fastq in tqdm(fastq_files):
@@ -164,9 +181,17 @@ def metaphlan_extraction(reads_data, dataset_id):
             fastq = os.path.join(fastq_path, fastq)
             command = [f"metaphlan {fastq} --input_type fastq --nproc 24 > {output}"]
             run_cmd(command)
-            args.append(output)
-    merge(args, open(final_output_path, 'w'), gtdb=False)
+            # after converting the fastq to profile we can delete the fastq files
+            run_cmd([f"rm {fastq}"])
 
+    qza_dir= os.path.join(reads_data.dir_path, 'qza')
+    # Gather all profile files from the directory
+    profile_files = get_files_in_directory(qza_dir, extension="_profile.txt")
+
+    # Merge the profile files
+    merge(profile_files, open(final_output_path, 'w'), gtdb=False)
+    # delete the fastq dir, we convert all the fastq to profile
+    shutil.rmtree(fastq_path)
 
 def metaphlan_txt_csv(reads_data, dataset_id):
     export_path = os.path.join(reads_data.dir_path, "export")
@@ -196,7 +221,7 @@ def metaphlan_txt_csv(reads_data, dataset_id):
 
 
 # This function is the main function to download the project. It Hnadles all the download flow for 16S and Shotgun.
-def visualization(acc_list, dataset_id, data_type, verbose_print, specific_location):
+def visualization(acc_list, dataset_id, data_type, verbose_print, specific_location,as_single):
     verbose_print("\n")
     verbose_print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
     data_json = {}
@@ -231,7 +256,7 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
 
     verbose_print("\n")
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start conversion (2/6)")
-    reads_data = sra_to_fastq(dir_path, data_type)
+    reads_data = sra_to_fastq(dir_path, as_single)
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish conversion (2/6)")
 
     verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start creating metadata.json (3/6)")
@@ -254,8 +279,7 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (4/6)")
 
         
-        shutil.rmtree(dir_path+"/sra")
-        
+
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (5/6)")
         qza_file_path = qiime_import(reads_data)

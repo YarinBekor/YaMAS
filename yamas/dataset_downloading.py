@@ -20,18 +20,36 @@ def get_acc_list(bio_project_name, verbose_print):
     return f"{bio_project_name}_acc_info.txt"
 
 
-def download(dataset_name, data_type, acc_list, verbose, specific_location):
+def download(dataset_name, data_type, acc_list, verbose, specific_location,as_single):
     verbose_print = print if verbose else lambda *a, **k: None
+    as_single= True if as_single else False
 
     verbose_print("\n")
     verbose_print("download starts.")
 
     # checking if the acc_list is provided
-    acc_list_path= acc_list if acc_list else None
-    acc_list_path = f"{acc_list_path}"
+    acc_list_path = acc_list if acc_list else None
+
     if acc_list_path is None:
         acc_list_path = get_acc_list(dataset_name, verbose_print)
-    visualization(acc_list_path, dataset_name, data_type, verbose_print, specific_location)
+    else:
+        acc_list_path=get_project_list(dataset_name,acc_list_path, verbose_print)
+    visualization(acc_list_path, dataset_name, data_type, verbose_print, specific_location,as_single)
+
+def get_project_list(bio_project_name, acc_list_path, verbose_print):
+    # if we are given a list of accession numbers, we will use them and produce the run info file of each sample and its metadata
+    with open(acc_list_path, 'r') as f:
+        acc_list = f.read().splitlines()
+        get_run_info_command = f'esearch -db sra -query {acc_list[0]} | efetch -format runinfo > {bio_project_name}.csv'
+        os.system(get_run_info_command)
+
+        # Loop through the rest of the accession numbers and append the results
+        for acc in acc_list[1:]:
+            get_run_info_command = f'esearch -db sra -query {acc} | efetch -format runinfo >> {bio_project_name}.csv'
+            os.system(get_run_info_command)
+    verbose_print(f"downloaded the run info at {bio_project_name}.csv")
+    return f"{acc_list_path}"
+
 
 
 def continue_from(dataset_id,continue_path, data_type, verbose, specific_location):
