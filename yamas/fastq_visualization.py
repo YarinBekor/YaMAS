@@ -168,5 +168,4 @@ def fastq_visualization(fastq_path, barcode_path, metadata_path, data_type, verb
         return reads_data.dir_path
 
     else:
-
         print("YaMAS doesnt support downloading shotgun, yet.")

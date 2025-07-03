@@ -28,6 +28,7 @@ def main():
 
     parser.add_argument('--fastq', nargs=4, metavar=("PREPROCESSED FASTQ PATH", "Barcodes.fastq.gz PATH","METADATA PATH", "DATA_TYPE"), help= "PREPROCESSED FASTQ PATH: the path of sequences.fastq.gz file \n Barcode.fastq.gz PATH: the path of barcodes.fastq.gz file \n METADATA PATH: the path of metadata file \n DATA_TYPE: 16S/18S/Shotgun")
 
+
     # Add an argument for specifying datasets to be downloaded.
     parser.add_argument('--download', nargs='+', help='Add datasets to be downloaded')
 
@@ -45,12 +46,15 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='Enable verbose mode')
     parser.add_argument('--acc_list', nargs=1, help='Path to the accession list file, formatted as a text file with one accession per line.')
     parser.add_argument('--as_single', action='store_true', help='Process the data as single-end reads, instead of paired-end reads.')
-
+   
+   # Add arguments for running HUMAnN and specifying the number of threads.
+    parser.add_argument('--threads', type=int, default=8, help='Total threads for internal tools')
+    parser.add_argument('--pathways', choices=['yes', 'no'], default='no', help='Generate HUMAnN pathways tables')
+    
 
     # Parse the command line arguments.
     args = parser.parse_args()
-
-
+    
     if args.ready:
         set_environment(args.ready[0])
 
@@ -92,7 +96,8 @@ def main():
 
             acc_list= args.acc_list[0] if args.acc_list else None
             for dataset_name in args.download:
-                download(dataset_name, data_type, acc_list,args.verbose, specific_location,args.as_single)
+                download(dataset_name, data_type, acc_list,args.verbose, specific_location,args.as_single, 
+                         threads=args.threads, pathways=args.pathways)
 
     if args.continue_from_fastq:
         dataset_id= args.continue_from_fastq[0]
@@ -101,7 +106,8 @@ def main():
 
         print(f"{continue_path}, {data_type}")
         if data_type == '16S' or data_type == '18S' or data_type == 'Shotgun':
-            continue_from_fastq(dataset_id,continue_path, data_type, args.verbose, specific_location)
+            continue_from_fastq(dataset_id,continue_path, data_type, args.verbose, specific_location, 
+                                threads=args.threads, pathways=args.pathways)
         else:
         # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
@@ -116,20 +122,3 @@ def main():
         else:
             # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
-
-    if args.fastq:
-        fastq_path= args.fastq[0]
-        barcode_path= args.fastq[1]
-        metadata_path= args.qiita[2]
-        data_type= args.qiita[3]
-        if data_type=='16S' or data_type=='18S' or data_type=='Shotgun':
-            download_fastq(fastq_path,barcode_path,metadata_path,data_type, args.verbose)
-
-        else:
-            # Ensure that a dataset type is specified when downloading datasets.
-            raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
-
-
-
-
-
