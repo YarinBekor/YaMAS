@@ -118,7 +118,7 @@ def main():
         data_type = args.continue_from[2]
         if data_type=='16S' or data_type=='18S' or data_type=='Shotgun':
             continue_from(dataset_id,continue_path,data_type, args.verbose, specific_location)
-
+ 
         else:
             # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")

@@ -29,7 +29,6 @@ def check_input(acc_list: str):
 
 
 
-
 def create_dir(dir_name, specific_location):
     dir_path = os.path.join(os.path.abspath(specific_location), dir_name)
 
@@ -56,8 +55,13 @@ def create_dir(dir_name, specific_location):
 
 
 def download_data_from_sra(dir_path: str, acc_list: str = ""):
+    # ensure the target “sra” folder exists
+    sra_dir = os.path.join(dir_path, 'sra')
+    os.makedirs(sra_dir, exist_ok=True)
+    
     run_cmd(['prefetch',
              "--option-file", acc_list,
+             "--output-directory", sra_dir,
              "--max-size", "100G"])
     repo_root = Path(os.environ.get("NCBI_VDB_REPOSITORY_ROOT",
                                     Path.home() / "ncbi"))
@@ -78,12 +82,15 @@ def sra_to_fastq(dir_path: str, as_single):
         fastq_path = os.path.join(dir_path, "fastq")
         run_cmd(["fasterq-dump", "--split-files", sra_path, "-O", fastq_path])
 
+    # identify FASTQ folder
+    fastq_dir = os.path.join(dir_path, "fastq")
+
     # check if reads include fwd and rev
     fastqs = sorted(os.listdir(os.path.join(dir_path, "fastq")))[:3]
     if len(set([fastq.split("_")[0] for fastq in fastqs])) == 2:
         if as_single:
-            delete__2_files = f"rm {os.path.join(dir_path, '*_2.fastq')}"
-            run_cmd([delete__2_files])
+            delete__2_files = f"rm -f {os.path.join(fastq_dir, '*_2.fastq*')}"
+            run_cmd(["bash", "-c", delete__2_files])
             print("Single reads- only forward reads are kept, reverse reads are deleted.")
             return ReadsData(dir_path, fwd=True, rev=False)
         else:
