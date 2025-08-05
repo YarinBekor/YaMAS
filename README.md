@@ -10,14 +10,56 @@ Before proceeding with the installation and execution of YaMAS, please ensure th
 4. Exporting a 16S project requires a downloaded [classifier file](https://data.qiime2.org/2022.8/common/gg-13-8-99-nb-classifier.qza).
 5. Get YaMAS [ready](https://github.com/YarinBekor/YaMAS#get-yamas-ready). 
 
-You are now ready to run and install YaMAS in the newly created and activated qiime2 environment.
-## Installation
+## Step-by-Step: Setting Up the YaMAS Environment
 
-To install YaMAS, you can use pip:
-
+#### 1. Download the QIIME 2 environment file
+```
+wget https://data.qiime2.org/distro/core/qiime2-2023.2-py38-linux-conda.yml
+```
+#### 2. Create & activate the Conda environment
+```
+conda env create -n qiime2-2023.2 --file qiime2-2023.2-py38-linux-conda.yml
+conda activate qiime2-2023.2
+```
+#### 3. Install Mamba (optional, for faster package management)
+```
+conda install -c conda-forge mamba
+```
+#### 4. Install SRA Tools via Mamba
+```
+mamba install -c bioconda sra-tools
+#Optional check:
+which prefetch
+which fasterq-dump
+prefetch --version
+fasterq-dump --version
+```
+#### 5. Install Entrez Direct
+```
+mamba install -c bioconda entrez-direct
+#Optional check:
+which esearch
+```
+#### 6. Install MetaPhlAn (v3.0.7)
+```
+mamba install -c bioconda metaphlan=3.0.7
+#Optional check:
+metaphlan --version
+```
+#### 7. Download & configure the MetaPhlAn database
+```
+metaphlan --install --bowtie2db /path/to/db --index mpa_v30_CHOCOPhlAn_201901
+export METAPHLAN_BOWTIE2_DB=/path/to/db
+echo 'export METAPHLAN_BOWTIE2_DB=/path/to/db' >> ~/.bashrc
+```
+#### 8. Install YaMAS
 ```
 pip install YMS
 ```
+
+You’re all set!  
+Now just activate qiime2-2023.2 and run YaMAS commands as needed.
+
 
 ## Getting Started
 
@@ -42,33 +84,37 @@ To download a project from **NCBI SRA** or from **ENA, qiita**, use the one of t
 
 ## Download from NCBI SRA
 ```
-yamas --download <dataset_id> --type <data_type>
+yamas --download <dataset_id> --type <data_type> --pathways <pathways>
 ```
 Arguments:
 - dataset_id: the dataset id from the NCBI SRA website. For example: PRJEB01234
 - data_type: choose one of the following types: 16S / 18S / Shotgun
+- pathways: Generate HUMAnN pathways tables. choose: yes / no 
 
 ### Continue data downloading  
 1. Continue downloading project **after** downloading SRA **before** converting to .fastq.    
 Use the following command:
 ```
-yamas --continue_from_fastq <dataset_id> <project_path> <data_type>
-```
-Arguments:
-- dataset_id: the dataset id from the NCBI SRA website. For example: PRJEB01234
-- project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
-- data_type: choose one of the following types: 16S / 18S / Shotgun    
-    
-
-2. Continue downloading project **after** downloading SRA and **after** converting them to .fastq.  
-Use the following command:
-```
-yamas --continue_from <dataset_id> <project_path> <data_type>
+yamas --continue_from_fastq <dataset_id> <project_path> <data_type> --pathways <pathways>
 ```
 Arguments:
 - dataset_id: the dataset id from the NCBI SRA website. For example: PRJEB01234
 - project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
 - data_type: choose one of the following types: 16S / 18S / Shotgun
+- pathways: Generate HUMAnN pathways tables. choose: yes / no
+    
+    
+
+2. Continue downloading project **after** downloading SRA and **after** converting them to .fastq.  
+Use the following command:
+```
+yamas --continue_from <dataset_id> <project_path> <data_type> --pathways <pathways>
+```
+Arguments:
+- dataset_id: the dataset id from the NCBI SRA website. For example: PRJEB01234
+- project_path: path to the project directory (created by YaMAS, if you started downloading data in the past).
+- data_type: choose one of the following types: 16S / 18S / Shotgun
+- pathways: Generate HUMAnN pathways tables. choose: yes / no
 
 ## Download from ENA
 ```
