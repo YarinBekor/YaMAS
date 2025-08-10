@@ -1,10 +1,10 @@
 # YaMAS (YOLO Microbiome Analysis System)
 
 ### Table of Contents
-- [Pipeline Overview](#-pipeline-overview)
-- [Installation & Dependencies](#-installation--dependencies)
-- [Flags & Options](#-flags--options)
-- [Output Structure](#-output-structure)
+- [Pipeline Overview](#pipeline-overview)
+- [Installation & Dependencies](#installation--dependencies)
+- [Flags & Options](#flags--options)
+- [Output Structure](#output-structure)
 - [Downloading a project](#downloading-a-project)
     - [Download from NCBI SRA](#download-from-ncbi-sra)
     - [Continue data downloading](#continue-data-downloading)
