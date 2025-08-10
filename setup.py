@@ -8,8 +8,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     version="1.2.14",
-    author="Yarin Bekor, Shani Finkelstein",
-    author_email="yarin.bekor@gmail.com, shaninn123@gmail.com",
+    author="Yarin Bekor, Shani Finkelstein, Ofir Aharoni",
+    author_email="yarin.bekor@gmail.com, shaninn123@gmail.com, ofir.aharoni5@gmail.com",
     description="YOLO Microbiome Analysis System",
     license='MIT',
     entry_points={

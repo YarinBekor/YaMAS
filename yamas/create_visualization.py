@@ -50,6 +50,10 @@ def create_dir(dir_name, specific_location):
     vis_path = os.path.join(dir_path, 'vis')
     os.makedirs(vis_path, exist_ok=True)
     print(f"{vis_path} created.")
+    
+    humann_path = os.path.join(dir_path, 'humann_results')
+    os.makedirs(humann_path, exist_ok=True)
+    print(f"{humann_path} created.")
 
     return dir_path
 
@@ -89,7 +93,9 @@ def sra_to_fastq(dir_path: str, as_single):
     fastqs = sorted(os.listdir(os.path.join(dir_path, "fastq")))[:3]
     if len(set([fastq.split("_")[0] for fastq in fastqs])) == 2:
         if as_single:
-            delete__2_files = f"rm -f {os.path.join(fastq_dir, '*_2.fastq*')}"
+            print('yes- paired reads')
+            print(f'the number of _2 reads: {len([f for f in os.listdir(fastq_dir) if "_2.fastq" in f])}')
+            delete__2_files = f"rm -f {os.path.join(fastq_dir, '*_2.fastq')}"
             run_cmd(["bash", "-c", delete__2_files])
             print("Single reads- only forward reads are kept, reverse reads are deleted.")
             return ReadsData(dir_path, fwd=True, rev=False)
@@ -150,7 +156,7 @@ def create_manifest(reads_data: ReadsData):
             tsv_writer.writerow([n, abs_ff, abs_fr])
     
     # remove sra folder
-    shutil.rmtree(os.path.join(base_dir, "sra"))
+    #shutil.rmtree(os.path.join(base_dir, "sra"))
 
 
 
@@ -212,7 +218,7 @@ def metaphlan_extraction(reads_data, dataset_id):
             command = [f"metaphlan {output} --input_type bowtie2out --nproc 24 > {final_output_file}"]
             run_cmd(command)
             # after converting the fastq to bowtie and bowtie to profile we can delete these files
-            run_cmd([f"rm {fastq_1} {fastq_2} {output}"])
+            #run_cmd([f"rm {fastq_1} {fastq_2} {output}"])
     else:
         print("not paired")
         for fastq in tqdm(fastq_files):
@@ -228,9 +234,11 @@ def metaphlan_extraction(reads_data, dataset_id):
     profile_files = get_files_in_directory(qza_dir, extension="_profile.txt")
 
     # Merge the profile files
-    merge(profile_files, open(final_output_path, 'w'), gtdb=False)
+    with open(final_output_path, 'w') as out:
+        merge(profile_files, out)
+    
     # delete the fastq dir, we convert all the fastq to profile
-    shutil.rmtree(fastq_path)
+    #shutil.rmtree(fastq_path)
 
 def metaphlan_txt_csv(reads_data, dataset_id):
     export_path = os.path.join(reads_data.dir_path, "export")
@@ -258,10 +266,47 @@ def metaphlan_txt_csv(reads_data, dataset_id):
 
     print(f"CSV file '{output_file}' has been created.")
 
+def run_pathways_pipeline(dir_path: Path | str, dataset_id: str, threads: int = 8):
+    base = Path(dir_path)
+    fastq_dir = base / "fastq"
+    output_dir  = base / "humann_results"
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    meta_profile = base / "export" / f"{dataset_id}_final.txt"
 
-# This function is the main function to download the project. It Hnadles all the download flow for 16S and Shotgun.
+#    sam_files = sorted(fastq_dir.glob("*.sam"))
+#    if sam_files:
+#    # run HUMAnN on each .sam file individually
+#        for sam in sam_files:
+#            run_humann_pipeline(
+#                str(sam),
+#                str(output_dir),
+#                str(meta_profile),
+#                threads=threads,
+#                input_format="sam"
+#            )
+#        return
+    
+    # If no SAM files, gather FASTQ files
+    fq_files = sorted(fastq_dir.glob("*.fastq"))
+    if fq_files:
+        # Run HUMAnN on each FASTQ file individually
+        for fq in fq_files:
+            run_humann_pipeline(
+                str(fq),
+                str(output_dir),
+                str(meta_profile),
+                threads=threads,
+                input_format="fastq"
+            )
+        return
+
+
+
+
+# This function is the main function to download the project. It Handles all the download flow for 16S and Shotgun.
 def visualization(acc_list, dataset_id, data_type, verbose_print, specific_location,as_single, 
-                  run_humann: bool = False, threads: int = 8, pathways: str = "no"):
+                  threads: int = 8, pathways: str = "no"):
     
     verbose_print("\n")
     verbose_print(datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
@@ -363,18 +408,11 @@ def visualization(acc_list, dataset_id, data_type, verbose_print, specific_locat
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 6/6 \n")
         
         if pathways == "yes":  # If pathways is set to "yes", run the HUMAnN pipeline
-            fastq_dir   = Path(dir_path) / "fastq"
-            fastqs      = sorted(fastq_dir.glob("*.fastq"))
-            fastq_input = ",".join(map(str, fastqs))          # "f1.fastq,f2.fastq,…"
-            output_dir  = Path(dir_path) / "humann_results"
-
-            meta_profile = Path(dir_path) / "export" / f"{dataset_id}_final.txt"
-            
-            run_humann_pipeline(fastq_input, output_dir, meta_profile=meta_profile)
+            run_pathways_pipeline(dir_path, dataset_id, threads)
 
 
 def visualization_continue_fastq(dataset_id, continue_path, data_type, verbose_print, specific_location, 
-                                  threads: int = 8, pathways: str = "no"):
+                                  threads, pathways):
     continue_path = Path(continue_path)
     verbose_print("\n")
     verbose_print('Checking environment...', end=" ")
@@ -398,8 +436,8 @@ def visualization_continue_fastq(dataset_id, continue_path, data_type, verbose_p
         create_manifest(reads_data)
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (3/5)")
         sra_dir = continue_path / "sra"
-        if sra_dir.exists():          # only delete if it still exists
-            shutil.rmtree(sra_dir)
+        #if sra_dir.exists():          # only delete if it still exists
+            #shutil.rmtree(sra_dir)
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (4/5)")
         qza_file_path = qiime_import(reads_data)
@@ -440,20 +478,13 @@ def visualization_continue_fastq(dataset_id, continue_path, data_type, verbose_p
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (4/5)")
 
         if pathways == "yes":  # If pathways is set to "yes", run the HUMAnN pipeline
-            fastq_dir   = continue_path / "fastq"
-            fastqs      = sorted(fastq_dir.glob("*.fastq"))
-            fastq_input = ",".join(map(str, fastqs))
-            output_dir  = continue_path / "humann_results"
-
-            meta_profile = Path(continue_path) / "export" / f"{dataset_id}_final.txt"
-            
-            run_humann_pipeline(fastq_input, output_dir, meta_profile=meta_profile)
+            run_pathways_pipeline(continue_path, dataset_id, threads)
                 
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading. 5/5 \n")
 
 
-def visualization_continue(dataset_id, continue_path, data_type, verbose_print, specific_location):
+def visualization_continue(dataset_id, continue_path, data_type, verbose_print, specific_location, threads, pathways):
     verbose_print("\n")
     verbose_print('Checking environment...', end=" ")
     check_conda_qiime2()
@@ -482,8 +513,8 @@ def visualization_continue(dataset_id, continue_path, data_type, verbose_print, 
         create_manifest(reads_data)
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finish creating manifest (1/3)")
         sra_path = os.path.join(continue_path, "sra")
-        if os.path.isdir(sra_path):
-            shutil.rmtree(sra_path)        
+        #if os.path.isdir(sra_path):
+            #shutil.rmtree(sra_path)        
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Start 'qiime import' (2/3)")
         qza_file_path = qiime_import(reads_data)
@@ -522,6 +553,9 @@ def visualization_continue(dataset_id, continue_path, data_type, verbose_print, 
         metaphlan_txt_csv(reads_data, dataset_id)
         verbose_print(
             f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- finish converting resualts to CSV (2/2)")
-
+        
+        if pathways == "yes":  # If pathways is set to "yes", run the HUMAnN pipeline
+            run_pathways_pipeline(continue_path, dataset_id, threads)
+            
         verbose_print("\n")
         verbose_print(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} -- Finished downloading.\n")

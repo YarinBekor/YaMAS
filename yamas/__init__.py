@@ -13,6 +13,7 @@ from .dataset_downloading import download_fastq
 def main():
     # Initialize the argument parser with a description.
     parser = argparse.ArgumentParser(description='YMS package')
+    
 
     # Add an argument for displaying the version of the YMS package.
     parser.add_argument('-v', '--version', action='version',
@@ -117,8 +118,14 @@ def main():
         continue_path= args.continue_from[1]
         data_type = args.continue_from[2]
         if data_type=='16S' or data_type=='18S' or data_type=='Shotgun':
-            continue_from(dataset_id,continue_path,data_type, args.verbose, specific_location)
+            continue_from(dataset_id,continue_path,data_type, args.verbose, specific_location,
+                          threads=args.threads, pathways=args.pathways)
  
         else:
             # Ensure that a dataset type is specified when downloading datasets.
             raise ValueError("Missing dataset type. Use --type 16S/18S/Shotgun")
+        
+        
+        
+if __name__ == "__main__":
+    main()

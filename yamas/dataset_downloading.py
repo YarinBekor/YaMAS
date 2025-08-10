@@ -55,18 +55,15 @@ def get_project_list(bio_project_name, acc_list_path, verbose_print):
     return f"{acc_list_path}"
 
 
-def continue_from(dataset_id,continue_path, data_type, verbose, specific_location):
+def continue_from(dataset_id,continue_path, data_type, verbose, specific_location, threads, pathways):
     verbose_print = print if verbose else lambda *a, **k: None
-
     verbose_print("\n")
     verbose_print(f"Continue downloading from {continue_path}.")
-    
-    visualization_continue(dataset_id,continue_path, data_type, verbose_print, specific_location)
+    visualization_continue(dataset_id,continue_path, data_type, verbose_print, specific_location, threads=threads, pathways=pathways)
 
     
-# This function is used to continue the download from a specific path
 def continue_from_fastq(dataset_id, continue_path, data_type, verbose, specific_location, 
-                        run_humann: bool = False, threads: int = 8, pathways: str = "no"):
+                        threads, pathways):
     verbose_print = print if verbose else lambda *a, **k: None
     verbose_print("\n")
     verbose_print(f"Continue downloading from {continue_path}.")
